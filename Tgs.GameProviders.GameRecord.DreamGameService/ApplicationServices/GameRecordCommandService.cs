@@ -1,4 +1,5 @@
-﻿using Tgs.GameProviders.QueryServer.Client;
+﻿using System.Text.Json;
+using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameProviders.QueryServer.Models;
 using Tgs.ServiceUtility;
 using TGS.GameProviders.Client;
@@ -8,18 +9,22 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
 {
     public class GameRecordCommandService : ICommandService<GameRecordCommand>
     {
+        private readonly ILogger<GameRecordCommandService> _logger;
         private readonly IDreamGameClient _dreamGameClient;
         private readonly IGameProvidersQueryServerClient _gameProvidersQueryServerClient;
         private readonly IGameRecordMessageHandler _gameRecordMessageHandler;
         private readonly IGameService _gameService;
         private readonly IPlayerService _playerService;
 
-        public GameRecordCommandService(IDreamGameClient dreamGameClient,
+        public GameRecordCommandService(
+            ILogger<GameRecordCommandService> logger,
+            IDreamGameClient dreamGameClient,
             IGameProvidersQueryServerClient gameProvidersQueryServerClient,
             IGameRecordMessageHandler gameRecordMessageHandler,
             IGameService gameService,
             IPlayerService playerService)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _dreamGameClient = dreamGameClient ?? throw new ArgumentNullException(nameof(dreamGameClient));
             _gameProvidersQueryServerClient = gameProvidersQueryServerClient ?? throw new ArgumentNullException(nameof(gameProvidersQueryServerClient));
             _gameRecordMessageHandler = gameRecordMessageHandler ?? throw new ArgumentNullException(nameof(gameRecordMessageHandler));
@@ -64,17 +69,53 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
                         continue;
                     }
                 }
+                _logger.Log(LogLevel.Information,
+               new EventId(1000, nameof(GameRecordCommandService)),
+               new
+               {
+                   Name = "Round",
+                   Data = roundModel,
+                   logOn = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
+               },
+               null,
+               (state, ex) => JsonSerializer.Serialize(state));
+
                 var playerInfo = await _playerService.GetAsync(gameProviderId.Value, data.PlayerCode).ConfigureAwait(false);
                 if (playerInfo == null)
                 {
                     continue;
                 }
+
+                _logger.Log(LogLevel.Information,
+               new EventId(1000, nameof(GameRecordCommandService)),
+               new
+               {
+                   Name = "Player",
+                   Data = playerInfo,
+                   logOn = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
+               },
+               null,
+               (state, ex) => JsonSerializer.Serialize(state));
+
+
                 var gameId = await _gameService.GetGameIdAsync(gameProviderId.Value, data.ExternalGameId).ConfigureAwait(false);
                 if (!gameId.HasValue)
                 {
                     continue;
                 }
-                if (roundModel.Status == RoundStatus.Open)
+
+                _logger.Log(LogLevel.Information,
+                    new EventId(1000, nameof(GameRecordCommandService)),
+                    new
+                    {
+                        Name = "GameId",
+                        Data = gameId,
+                        logOn = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
+                    },
+                    null,
+                    (state, ex) => JsonSerializer.Serialize(state));
+
+                if (roundModel.Status == RoundStatus.Open || data.Status == GameRecordRoundStatus.Closed)
                 {
                     await _gameRecordMessageHandler.SendGameRoundAsync(new GameRoundData()
                     {
