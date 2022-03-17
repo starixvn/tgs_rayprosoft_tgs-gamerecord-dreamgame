@@ -130,16 +130,16 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
                 {
                     await _gameRecordMessageHandler.SendGameRoundAsync(new GameRoundData()
                     {
-                        
+
                         GameProviderCode = data.GameProviderCode,
-                        GameProviderId = data.GameProviderId,
-                        ExternalRoundId = data.ExternalRoundId,
-                        PlayerCode = data.PlayerCode,
-                        GameId = gameId ?? -1,
-                        ExternalGameId = data.ExternalGameId,
+                        GameProviderId = roundModel.GameProviderId,
+                        ExternalRoundId = roundModel.ExternalRoundId,
+                        PlayerCode = roundModel.PlayerCode,
+                        GameId = roundModel.GameId,
+                        ExternalGameId = game.GameExternalId,
                         CurrencyCode = (playerInfo == null) ? string.Empty : playerInfo.DefaultWalletCurrencyCode,
                         Status = (RoundStatus)data.Status,
-                        GameProviderConfigurationId = (playerInfo == null) ? Guid.Empty : playerInfo.GameProviderConfigurationId,
+                        GameProviderConfigurationId = roundModel.GameProviderConfigurationId,
                         WalletId = (playerInfo == null) ? Guid.Empty : playerInfo.DefaultWalletId,
                         CreatedOn = roundModel.CreatedOn,
                         ClosedOn = (data.Status == GameRecordRoundStatus.Closed) ? DateTimeOffset.UtcNow : null,
@@ -163,7 +163,7 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
                 markGameRecords.Add(data.ExternalRoundId);
             }
 
-            //await _dreamGameClient.MarkGameRecordListAsync(markGameRecords).ConfigureAwait(false);
+            await _dreamGameClient.MarkGameRecordListAsync(markGameRecords).ConfigureAwait(false);
         }
     }
 }
