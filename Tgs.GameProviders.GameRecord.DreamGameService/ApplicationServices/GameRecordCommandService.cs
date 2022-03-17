@@ -69,7 +69,7 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
                 {
                     continue;
                 }
-                var gameId = await _gameService.GetGameIdAsync(gameProviderId.Value, data.ExternalRoundId).ConfigureAwait(false);
+                var gameId = await _gameService.GetGameIdAsync(gameProviderId.Value, data.ExternalGameId).ConfigureAwait(false);
                 if (!gameId.HasValue)
                 {
                     continue;
