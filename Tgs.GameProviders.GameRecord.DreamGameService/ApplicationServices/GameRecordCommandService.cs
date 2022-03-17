@@ -130,6 +130,7 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
                 {
                     await _gameRecordMessageHandler.SendGameRoundAsync(new GameRoundData()
                     {
+                        
                         GameProviderCode = data.GameProviderCode,
                         GameProviderId = data.GameProviderId,
                         ExternalRoundId = data.ExternalRoundId,
@@ -162,7 +163,7 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
                 markGameRecords.Add(data.ExternalRoundId);
             }
 
-            await _dreamGameClient.MarkGameRecordListAsync(markGameRecords).ConfigureAwait(false);
+            //await _dreamGameClient.MarkGameRecordListAsync(markGameRecords).ConfigureAwait(false);
         }
     }
 }
