@@ -26,6 +26,7 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService
                 {
 
                     _memoryCache.Set($"{gameProviderId}:{gameExternalId}", game.GameId, TimeSpan.FromHours(1));
+                    gameId = game.GameId;
                 }
             }
             return gameId;
