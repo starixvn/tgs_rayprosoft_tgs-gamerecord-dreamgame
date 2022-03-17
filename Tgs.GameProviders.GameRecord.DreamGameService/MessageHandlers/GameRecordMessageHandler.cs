@@ -23,13 +23,13 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.MessageHandlers
                 new EventId(1000, nameof(GameRecordMessageHandler)),
                 new
                 {
-                    MessageQueue = $"tgs.gp.gamerecord.database.round.{data.GameProviderCode.ToLower()}",
+                    MessageQueue = $"tgs.gp.gamerecord.database.round.dg",
                     Data = data,
                     SendDateTime = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
                 },
                 null,
                 (state, ex) => JsonSerializer.Serialize(state));
-            return _messageSender.PublishAsync($"tgs.gp.gamerecord.database.round.{data.GameProviderCode.ToLower()}", data.ToBson());
+            return _messageSender.PublishAsync($"tgs.gp.gamerecord.database.round.dg", data.ToBson());
         }
 
         public ValueTask SendGameRoundDetailAsync(GameRoundDetail data)

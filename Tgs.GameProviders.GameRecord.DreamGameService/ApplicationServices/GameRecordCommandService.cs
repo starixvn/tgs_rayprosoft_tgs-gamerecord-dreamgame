@@ -55,6 +55,17 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
             var markGameRecords = new List<string>();
             foreach (var data in gameRecordResponse.Datas)
             {
+                _logger.Log(LogLevel.Information,
+               new EventId(1000, nameof(GameRecordCommandService)),
+               new
+               {
+                   Name = "GameRecord",
+                   Data = data,
+                   logOn = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
+               },
+               null,
+               (state, ex) => JsonSerializer.Serialize(state));
+
                 var roundModel = await _gameProvidersQueryServerClient.RoundGetAsync(gameProviderId.Value, data.ExternalRoundId, game.GameId, data.PlayerCode).ConfigureAwait(false);
                 if (roundModel == null)
                 {
