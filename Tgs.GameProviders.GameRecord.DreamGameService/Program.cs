@@ -91,10 +91,10 @@ builder.Services
                 MessageQueue = MongoMessageQueue.Default,
                 ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoDBMessagingConnectionString")
             })
-        .DeclareQueue("tgs.gp.gamerecord.database.detail");
+        .DeclareQueue("tgs.gp.gamerecord.database.round.dg");
     })
     .ClearAllExchanges()
-    .AddMongoGlobPatternExchange("tgs.gp.gamerecord.database.detail", "gp.gamerecord.database", "tgs.gp.gamerecord.database.detail")
+    .AddMongoGlobPatternExchange("tgs.gp.gamerecord.database.round.dg", "gp.gamerecord.database", "tgs.gp.gamerecord.database.round.dg")
     .AddNatsGlobPatternExchange("*");
 
 builder.Services
