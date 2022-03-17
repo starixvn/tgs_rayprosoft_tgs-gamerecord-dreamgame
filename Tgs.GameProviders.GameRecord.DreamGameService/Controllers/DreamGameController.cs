@@ -1,0 +1,18 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices;
+using Tgs.ServiceUtility;
+
+namespace Tgs.GameProviders.GameRecord.DreamGameService.Controllers
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class DreamGameController : ControllerBase
+    {
+        [HttpPost]
+        public ValueTask GameRecordAsync(
+           [FromServices] ICommandService<GameRecordCommand> commandService)
+
+        => commandService.ExecuteAsync(new());
+    }
+}
