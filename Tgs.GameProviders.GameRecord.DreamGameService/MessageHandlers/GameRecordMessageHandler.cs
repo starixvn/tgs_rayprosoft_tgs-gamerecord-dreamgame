@@ -16,6 +16,22 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.MessageHandlers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         }
+
+        public ValueTask SendGameRoundAsync(GameRoundData data)
+        {
+            _logger.Log(LogLevel.Information,
+                new EventId(1000, nameof(GameRecordMessageHandler)),
+                new
+                {
+                    MessageQueue = $"tgs.gp.gamerecord.database.round.{data.GameProviderCode.ToLower()}",
+                    Data = data,
+                    SendDateTime = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
+                },
+                null,
+                (state, ex) => JsonSerializer.Serialize(state));
+            return _messageSender.PublishAsync($"tgs.gp.gamerecord.database.round.{data.GameProviderCode.ToLower()}", data.ToBson());
+        }
+
         public ValueTask SendGameRoundDetailAsync(GameRoundDetail data)
         {
             _logger.Log(LogLevel.Information,
