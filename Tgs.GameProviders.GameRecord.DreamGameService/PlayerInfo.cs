@@ -1,0 +1,4 @@
+﻿namespace Tgs.GameProviders.GameRecord.DreamGameService
+{
+    public record PlayerInfo(Guid BrandId, string PlayerCode, string DefaultWalletCurrencyCode, Guid DefaultWalletId, Guid GameProviderConfigurationId);
+}
