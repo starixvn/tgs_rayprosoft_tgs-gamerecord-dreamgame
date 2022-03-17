@@ -19,6 +19,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     ServiceLifetime.Transient)
                 .AddGameProvidersClient(gameProvidersClientOptions)
                 .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
-                .AddTransient<IGameRecordMessageHandler, GameRecordMessageHandler>();
+                .AddTransient<IGameRecordMessageHandler, GameRecordMessageHandler>()
+                .AddTransient<IGameService, GameService>()
+                .AddTransient<IPlayerService, PlayerService>();
     }
 }
