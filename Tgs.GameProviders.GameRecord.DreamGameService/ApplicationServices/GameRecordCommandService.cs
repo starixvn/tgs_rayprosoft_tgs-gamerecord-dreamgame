@@ -45,8 +45,25 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
             {
                 return;
             }
+            var gameRecordResponse = default(GameRecordResponse?);
+            try
+            {
+                gameRecordResponse = await _dreamGameClient.GameRecordListAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error,
+                    new EventId(1000, nameof(GameRecordCommandService)),
+                    command,
+                    ex,
+                    (state, ex) => JsonSerializer.Serialize(new
+                    {
+                        name = "GameRecord",
+                        logOn = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O"),
+                        Exception = ex!.ToString()
+                    }));
+            }
 
-            var gameRecordResponse = await _dreamGameClient.GameRecordListAsync().ConfigureAwait(false);
             if (gameRecordResponse == null || !gameRecordResponse.Success || gameRecordResponse.Datas == null)
             {
                 return;
