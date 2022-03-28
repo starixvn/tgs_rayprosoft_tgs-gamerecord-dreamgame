@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices;
-using Tgs.GameProviders.GameRecord.DreamGameService.ReceiveHandlers;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 using TGS.GameProviders.Domains;
