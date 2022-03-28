@@ -35,7 +35,7 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService
                         playerViewModel.DefaultWalletId,
                         gameProviderConfigurationId.Value
                         );
-                    _memoryCache.Set($"{gameProviderId}:{playerCode}", playerInfo, TimeSpan.FromHours(1));
+                    _ = _memoryCache.Set($"{gameProviderId}:{playerCode}", playerInfo, TimeSpan.FromHours(1));
                 }
             }
             return playerInfo;

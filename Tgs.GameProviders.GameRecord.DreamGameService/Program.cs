@@ -49,7 +49,7 @@ builder.Services
     .AddMessageQueue()
     .AddRabbitMessageQueue(config =>
     {
-        config
+        _ = config
             .ConfigQueueOptions((options, sp) =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
@@ -58,7 +58,7 @@ builder.Services
 
                 options.OnSetupQueueAndExchange = channel =>
                 {
-                    channel.QueueDeclare(
+                    _ = channel.QueueDeclare(
                         queue: "gp.gamerecord.dg",
                         durable: true,
                         exclusive: false,
@@ -76,7 +76,7 @@ builder.Services
     })
     .AddNatsMessageQueue(natsConfig =>
     {
-        natsConfig
+        _ = natsConfig
         .ConfigQueueOptions((options, sp) =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
@@ -85,7 +85,7 @@ builder.Services
     })
     .AddMongoMessageQueue(config =>
     {
-        config
+        _ = config
         .DefineMessageQueue(
             "gp.gamerecord.database",
             sp => new MongoMessageQueueBuilderOptions
@@ -125,7 +125,7 @@ builder.Services
 
 builder.Services.AddOpenTelemetryTracing(builder =>
 {
-    builder
+    _ = builder
         .SetResourceBuilder(ResourceBuilder.CreateDefault()
         .AddEnvironmentVariableDetector())
         .AddSource("Tgs.*")
@@ -166,7 +166,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-
 }
 
 app.UseSwagger();
