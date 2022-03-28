@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddGameProvidersClient(gameProvidersClientOptions)
                 .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
                 .AddTransient<IGameRecordMessageHandler, GameRecordMessageHandler>()
+                .AddTransient<IGameProviderService, GameProviderService>()
                 .AddTransient<IGameService, GameService>()
                 .AddTransient<IPlayerService, PlayerService>();
     }

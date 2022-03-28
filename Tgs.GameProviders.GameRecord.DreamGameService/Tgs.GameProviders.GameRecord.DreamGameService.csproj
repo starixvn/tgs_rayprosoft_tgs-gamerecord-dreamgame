@@ -31,7 +31,7 @@
 		<PackageReference Include="Tgs.MessageQueue" Version="2.0.0" />
 		<PackageReference Include="Tgs.MessageQueue.MongoDB" Version="2.0.3" />
 		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.0.3" />
-		<PackageReference Include="Tgs.MessageQueue.RabbitMQ" Version="2.0.1" />
+		<PackageReference Include="Tgs.MessageQueue.RabbitMQ" Version="2.0.2" />
 		<PackageReference Include="TGS.ServiceUtility" Version="0.1.0" />
 		<PackageReference Include="Tgs.Interceptors" Version="0.2.1" />
 	</ItemGroup>
