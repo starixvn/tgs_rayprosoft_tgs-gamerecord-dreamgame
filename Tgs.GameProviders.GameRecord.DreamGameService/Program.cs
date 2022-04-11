@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
@@ -101,47 +102,41 @@ builder.Services
     });
 
 builder.Services
-    .AddOptions<OtlpExporterOptions>()
-    .Configure<IConfiguration>((options, conifg) =>
-    {
-        var nodeIp = conifg.GetValue<string>("NODE_IP");
+     .AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
+        sp => new ConfigureNamedOptions<OtlpExporterOptions>(
+            Microsoft.Extensions.Options.Options.DefaultName,
+            exporterOptions =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var nodeIp = config.GetValue<string>("NODE_IP");
 
-        if (!string.IsNullOrWhiteSpace(nodeIp))
-            options.Endpoint = new Uri($"http://{nodeIp}:4317");
+                if (!string.IsNullOrWhiteSpace(nodeIp))
+                    exporterOptions.Endpoint = new Uri($"http://{nodeIp}:4317");
 
-        conifg.GetSection("Opentelemetry:Tracing").Bind(options);
-    });
-
-builder.Services.AddOpenTelemetryTracing(builder =>
-{
-    _ = builder
-        .SetResourceBuilder(ResourceBuilder.CreateDefault()
-        .AddEnvironmentVariableDetector())
+                config.GetSection("Opentelemetry:Tracing").Bind(exporterOptions);
+            }))
+    .AddOpenTelemetryTracing(traceBuilder => traceBuilder
+        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddEnvironmentVariableDetector())
         .AddSource("Tgs.*")
         .AddSource("TGS.*")
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddNpgsql()
-        .AddAspNetCoreInstrumentation()
-        .AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
         .AddProfileViewExporter()
-        .AddOtlpExporter();
-});
-
-builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
-{
-    options.Filter = httpContext =>
+        .AddOtlpExporter())
+    .AddProfileViewer()
+    .Configure<AspNetCoreInstrumentationOptions>(options =>
     {
-        return !httpContext.Request.Path.HasValue
-            || !httpContext.Request.Path.StartsWithSegments("/swagger")
-            && !httpContext.Request.Path.StartsWithSegments("/healthz")
-            && !httpContext.Request.Path.StartsWithSegments("/profiler/")
-            && !new[] { "html", "ico", "png", "jpg", "js" }.Any(
-                ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
-    };
-});
-
-builder.Services.AddProfileViewer();
+        options.Filter = httpContext =>
+        {
+            return !httpContext.Request.Path.HasValue
+                || !httpContext.Request.Path.StartsWithSegments("/swagger")
+                && !httpContext.Request.Path.StartsWithSegments("/healthz")
+                && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+                && !httpContext.Request.Path.StartsWithSegments("/metrics")
+                && !new[] { "html", "ico", "png", "jpg" }.Any(
+                    ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
+        };
+    });
 
 builder.Services
     .AddInterceptionService()
@@ -150,6 +145,7 @@ builder.Services
 builder.Services
     .AddHealthChecks()
     .ForwardToPrometheus();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
