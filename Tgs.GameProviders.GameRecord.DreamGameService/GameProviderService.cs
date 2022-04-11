@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Tgs.GameProviders.QueryServer.Client;
-using TGS.GameProviders.Domains;
+using Tgs.GameProviders.Domains;
 
 namespace Tgs.GameProviders.GameRecord.DreamGameService
 {
