@@ -3,7 +3,7 @@ using System.Text.Json;
 using Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
-using TGS.GameProviders.Domains;
+using Tgs.GameProviders.Domains;
 
 namespace Tgs.GameProviders.GameRecord.DreamGameService.ReceiveHandlers
 {

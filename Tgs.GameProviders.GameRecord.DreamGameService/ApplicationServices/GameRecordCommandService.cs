@@ -2,7 +2,7 @@
 using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameProviders.QueryServer.Models;
 using Tgs.ServiceUtility;
-using TGS.GameProviders.Client;
+using Tgs.GameProviders.Client;
 
 namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
 {

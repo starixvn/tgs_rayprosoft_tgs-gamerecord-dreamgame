@@ -2,7 +2,7 @@
 using Tgs.GameProviders.GameRecord.DreamGameService;
 using Tgs.GameProviders.GameRecord.DreamGameService.MessageHandlers;
 using Tgs.GameProviders.QueryServer.Client;
-using TGS.GameProviders.Client;
+using Tgs.GameProviders.Client;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
