@@ -74,15 +74,6 @@ builder.Services
             })
             .AddHandler<DreamGameReceiveHandler>("gp.gamerecord.dg", false);
     })
-    .AddNatsMessageQueue(natsConfig =>
-    {
-        _ = natsConfig
-        .ConfigQueueOptions((options, sp) =>
-        {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-            options.Url = configuration.GetConnectionString("NatsMQ");
-        });
-    })
     .AddMongoMessageQueue(config =>
     {
         _ = config
@@ -92,12 +83,10 @@ builder.Services
             {
                 MessageQueue = MongoMessageQueue.Default,
                 ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoDBMessagingConnectionString")
-            })
-        .DeclareQueue("tgs.gp.gamerecord.database.round.dg");
+            });
     })
     .ClearAllExchanges()
-    .AddMongoGlobPatternExchange("tgs.gp.gamerecord.database.round.dg", "gp.gamerecord.database", "tgs.gp.gamerecord.database.round.dg")
-    .AddNatsGlobPatternExchange("*");
+    .AddMongoGlobPatternExchange("tgs.gp.gamerecord.database.round.dg", "gp.gamerecord.database", "tgs.gp.gamerecord.database.round.dg");
 
 builder.Services
     .AddGameRecord((options, sp) =>
