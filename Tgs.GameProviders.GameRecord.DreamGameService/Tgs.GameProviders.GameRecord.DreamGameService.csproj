@@ -25,7 +25,7 @@
 		<PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
 		<PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="6.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
-		<PackageReference Include="Tgs.GameProviders.Client" Version="0.0.31" />
+		<PackageReference Include="Tgs.GameProviders.Client" Version="0.0.32" />
 		<PackageReference Include="Tgs.GameProviders.QueryServer.Client" Version="0.0.10" />
 		<PackageReference Include="Tgs.Logging" Version="0.0.18" />
 		<PackageReference Include="Tgs.MessageQueue" Version="2.1.0" />
