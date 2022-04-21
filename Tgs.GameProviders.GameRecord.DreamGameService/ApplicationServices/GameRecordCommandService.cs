@@ -1,8 +1,7 @@
-﻿using System.Text.Json;
+﻿using Tgs.GameProviders.Client;
 using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameProviders.QueryServer.Models;
 using Tgs.ServiceUtility;
-using Tgs.GameProviders.Client;
 
 namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
 {
@@ -15,23 +14,26 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
         private readonly IGameService _gameService;
         private readonly ILogger<GameRecordCommandService> _logger;
         private readonly IPlayerService _playerService;
+        private readonly ISystemClock _systemClock;
 
         public GameRecordCommandService(
-            ILogger<GameRecordCommandService> logger,
             IDreamGameClient dreamGameClient,
+            IGameProviderService gameProviderService,
             IGameProvidersQueryServerClient gameProvidersQueryServerClient,
             IGameRecordMessageHandler gameRecordMessageHandler,
-            IGameProviderService gameProviderService,
             IGameService gameService,
-            IPlayerService playerService)
+            ILogger<GameRecordCommandService> logger,
+            IPlayerService playerService,
+            ISystemClock systemClock)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _dreamGameClient = dreamGameClient ?? throw new ArgumentNullException(nameof(dreamGameClient));
+            _gameProviderService = gameProviderService ?? throw new ArgumentNullException(nameof(gameProviderService));
             _gameProvidersQueryServerClient = gameProvidersQueryServerClient ?? throw new ArgumentNullException(nameof(gameProvidersQueryServerClient));
             _gameRecordMessageHandler = gameRecordMessageHandler ?? throw new ArgumentNullException(nameof(gameRecordMessageHandler));
-            _gameProviderService = gameProviderService ?? throw new ArgumentNullException(nameof(gameProviderService));
             _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
-            _playerService = playerService;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+            _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
         }
 
         public async ValueTask ExecuteAsync(GameRecordCommand command, CancellationToken cancellationToken = default)
@@ -56,19 +58,10 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
             }
 
             var markGameRecords = new List<string>();
-            foreach (var data in gameRecordResponse.Datas)
-            {
-                _logger.Log(LogLevel.Information,
-               new EventId(1000, nameof(GameRecordCommandService)),
-               new
-               {
-                   Name = "GameRecord",
-                   Data = data,
-                   logOn = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
-               },
-               null,
-               (state, ex) => JsonSerializer.Serialize(state));
+            var gameRecords = gameRecordResponse.Datas.Where(x => x.ExternalClosedOn.HasValue ? x.ExternalClosedOn.Value.UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3) : true);
 
+            foreach (var data in gameRecords)
+            {
                 var roundModel = await _gameProvidersQueryServerClient.RoundGetAsync(gameProviderId.Value, data.ExternalRoundId, game.GameId, data.PlayerCode).ConfigureAwait(false);
                 if (roundModel == null)
                 {
@@ -125,8 +118,10 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices
 
                 markGameRecords.Add(data.ExternalRoundId);
             }
-
-            await _dreamGameClient.MarkGameRecordListAsync(markGameRecords).ConfigureAwait(false);
+            if (markGameRecords.Any())
+            {
+                await _dreamGameClient.MarkGameRecordListAsync(markGameRecords).ConfigureAwait(false);
+            }
         }
     }
 }
