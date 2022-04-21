@@ -22,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddTransient<IGameRecordMessageHandler, GameRecordMessageHandler>()
                 .AddTransient<IGameProviderService, GameProviderService>()
                 .AddTransient<IGameService, GameService>()
-                .AddTransient<IPlayerService, PlayerService>();
+                .AddTransient<IPlayerService, PlayerService>()
+                .AddTransient<ISystemClock, SystemClock>();
     }
 }
