@@ -3,7 +3,7 @@ using System.Text.Json;
 using Tgs.GameProviders.GameRecord.DreamGameService.ApplicationServices;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
-using TGS.GameProviders.Domains;
+using Tgs.GameProviders.Domains;
 
 namespace Tgs.GameProviders.GameRecord.DreamGameService.ReceiveHandlers
 {
@@ -24,17 +24,20 @@ namespace Tgs.GameProviders.GameRecord.DreamGameService.ReceiveHandlers
         {
             var json = Encoding.UTF8.GetString(data.Span);
             var command = JsonSerializer.Deserialize<DreamGameCommand>(json);
-            _logger.Log(LogLevel.Information,
-                new EventId((int)GameProviderUnique.DreamGame, nameof(DreamGameReceiveHandler)),
-                new
-                {
-                    GameProviderCode = GameProviderType.TCG,
-                    GameRecord = command!.GameProviderCode,
-                    SendDateTime = command!.SendDateTime.ToOffset(TimeSpan.FromHours(+8)).ToString("O"),
-                    ReceiveTime = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
-                },
-                null,
-                (state, ex) => JsonSerializer.Serialize(state));
+
+            var logInfo = new
+            {
+                GameProviderCode = GameProviderType.BigGaming,
+                Data = command,
+                ReceiveTime = DateTimeOffset.Now.ToString("O")
+            };
+            if (command == null)
+            {
+                _logger.LogError("Information Received:{LogInfo}", logInfo);
+                return ValueTask.CompletedTask;
+            }
+            _logger.LogInformation("Information Received:{LogInfo}", logInfo);
+
             return _commandService.ExecuteAsync(new(), cancellationToken);
         }
     }

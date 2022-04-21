@@ -7,8 +7,7 @@ data:
   appsettings.json: |
     {
       "ConnectionStrings": {
-        "MongoDBMessagingConnectionString": "{{ .Values.connectionStrings.mongo_messaging }}",
-        "NatsMQ": "{{ .Values.nats.urls }}"
+        "MongoDBMessagingConnectionString": "{{ .Values.connectionStrings.mongo_messaging }}"
       },
       "GameRecord": {
         "GameProvidersBaseUrl": "http://game-gameproviders",
