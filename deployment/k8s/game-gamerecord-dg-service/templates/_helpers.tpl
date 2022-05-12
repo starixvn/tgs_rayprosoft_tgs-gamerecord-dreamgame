@@ -33,9 +33,9 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
-{{- define "game-gamecashs.labels" -}}
-helm.sh/chart: {{ include "game-gamecashs.chart" . }}
-{{ include "game-gamecashs.selectorLabels" . }}
+{{- define "game-gamerecord-dg-service.labels" -}}
+helm.sh/chart: {{ include "game-gamerecord-dg-service.chart" . }}
+{{ include "game-gamerecord-dg-service.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
