@@ -19,6 +19,8 @@ spec:
       {{- end }}
       labels:
         {{- include "game-gamerecord-dg-service.selectorLabels" . | nindent 8 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -92,6 +94,39 @@ spec:
             periodSeconds: 2
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        - name: monitor
+          image: mcr.microsoft.com/dotnet/monitor:6.0.0
+          args: [ "--no-auth" ]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DOTNETMONITOR_DiagnosticPort__ConnectionMode
+              value: Listen
+            - name: DOTNETMONITOR_DiagnosticPort__EndpointName
+              value: /diag/port
+            - name: DOTNETMONITOR_Storage__DumpTempFolder
+              value: /dumps
+            - name: DOTNETMONITOR_Urls
+              value: http://+:52324
+            - name: DOTNETMONITOR_Metrics__Endpoints
+              value: http://+:52325
+            - name: XDG_CONFIG_HOME
+              value: /config
+          volumeMounts:
+            - mountPath: /diag
+              name: diagvol
+            - mountPath: /dumps
+              name: dumpsvol
+            - mountPath: /config/dotnet-monitor/settings.json
+              name: appsettings
+              readOnly: true
+              subPath: monitor.settings.json
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
       volumes:
         - name: appsettings
           configMap:
@@ -99,6 +134,10 @@ spec:
         - name: rds-combined-ca-bundle
           secret:
             secretName: rds-combined-ca-bundle
+        - name: diagvol
+          emptyDir: {}
+        - name: dumpsvol
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
