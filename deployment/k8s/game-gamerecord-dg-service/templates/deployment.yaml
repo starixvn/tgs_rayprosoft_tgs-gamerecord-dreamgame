@@ -19,8 +19,8 @@ spec:
       {{- end }}
       labels:
         {{- include "game-gamerecord-dg-service.selectorLabels" . | nindent 8 }}
-  annotations:
-    reloader.stakater.com/auto: "true"
+    annotations:
+      reloader.stakater.com/auto: "true"
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
