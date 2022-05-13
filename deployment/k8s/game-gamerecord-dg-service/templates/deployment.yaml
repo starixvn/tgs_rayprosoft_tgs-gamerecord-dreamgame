@@ -19,12 +19,12 @@ spec:
       {{- end }}
       labels:
         {{- include "game-gamerecord-dg-service.selectorLabels" . | nindent 8 }}
-        tgs.kind: game
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "game-gamerecord-dg-service.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -33,62 +33,81 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: Game-Gamerecord-DG-Service({{ .Release.namespace }})
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: ConnectionStrings__MongoMessaging
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: mongo-messaging
+            - name: RabbitMQ__RabbitMQUrl
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-url
+            - name: RabbitMQ__UserName
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-user
+            - name: RabbitMQ__Password
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-pass
+            - name: RabbitMQ__VirtualHost
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: rabbitmq-vhost
           volumeMounts:
             - mountPath: /config/appsettings.json
               name: appsettings
               readOnly: true
               subPath: appsettings.json
-            {{- if eq .Values.namespace "prod" }}
             - mountPath: /etc/ssl/certs/rds-combined-ca-bundle.pem
               name: rds-combined-ca-bundle
               readOnly: true
               subPath: rds-combined-ca-bundle.pem
-            {{- end }}
-          env:
-            - name: OTEL_SERVICE_NAME
-              value: Game-Gamerecord-DG-Service({{ .Values.namespace }})
-            - name: NODE_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /healthz
               port: http
-          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          startupProbe:
             httpGet:
               path: /healthz
               port: http
+            failureThreshold: 30
+            periodSeconds: 2
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: appsettings
           configMap:
             name: configmap-{{ include "game-gamerecord-dg-service.fullname" . }}
-        {{- if eq .Values.namespace "prod" }}
         - name: rds-combined-ca-bundle
-          configMap:
-            name: configmap-mongodb-pem
-        {{- end }}
-      {{ if eq .Values.namespace "staging" }}
+          secret:
+            secretName: rds-combined-ca-bundle
+      {{- with .Values.nodeSelector }}
       nodeSelector:
-        dedicated: nonprod
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
       tolerations:
-      - effect: NoSchedule
-        key: dedicated
-        operator: Equal
-        value: nonprod
-      {{ end }}
-      {{ if eq .Values.namespace "prod" }}
-      nodeSelector:
-        dedicated: prod
-      tolerations:
-      - effect: NoSchedule
-        key: dedicated
-        operator: Equal
-        value: prod
-      {{ end }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -6,17 +6,8 @@ metadata:
 data:
   appsettings.json: |
     {
-      "ConnectionStrings": {
-        "MongoDBMessagingConnectionString": "{{ .Values.connectionStrings.mongo_messaging }}"
-      },
       "GameRecord": {
         "GameProvidersBaseUrl": "http://game-gameproviders",
         "GameProvidersQueryServerBaseUrl": "http://game-gameprovider-queryserver"
-      },
-      "RabbitMQ": {
-        "RabbitMQUrl": "{{ .Values.rabbit.url }}",
-        "UserName": "{{ .Values.rabbit.user }}",
-        "Password": "{{ .Values.rabbit.password }}",
-        "VirtualHost": "{{ .Values.rabbit.vhost  }}"
       }
     }
