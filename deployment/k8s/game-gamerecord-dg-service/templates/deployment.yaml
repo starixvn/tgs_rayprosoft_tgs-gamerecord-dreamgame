@@ -4,6 +4,8 @@ metadata:
   name: {{ include "game-gamerecord-dg-service.fullname" . }}
   labels:
     {{- include "game-gamerecord-dg-service.labels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -19,8 +21,6 @@ spec:
       {{- end }}
       labels:
         {{- include "game-gamerecord-dg-service.selectorLabels" . | nindent 8 }}
-    annotations:
-      reloader.stakater.com/auto: "true"
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
