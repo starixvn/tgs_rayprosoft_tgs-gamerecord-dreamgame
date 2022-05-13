@@ -19,12 +19,12 @@ spec:
       {{- end }}
       labels:
         {{- include "game-gamerecord-dg-service.selectorLabels" . | nindent 8 }}
-        tgs.kind: game
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "game-gamerecord-dg-service.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
