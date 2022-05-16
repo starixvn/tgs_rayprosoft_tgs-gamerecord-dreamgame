@@ -6,17 +6,25 @@ metadata:
 data:
   appsettings.json: |
     {
-      "ConnectionStrings": {
-        "MongoDBMessagingConnectionString": "{{ .Values.connectionStrings.mongo_messaging }}"
-      },
       "GameRecord": {
         "GameProvidersBaseUrl": "http://game-gameproviders",
         "GameProvidersQueryServerBaseUrl": "http://game-gameprovider-queryserver"
+      }
+    }
+  monitor.settings.json: |
+    {
+      "Metrics": {
+        "MetricCount": "1"
       },
-      "RabbitMQ": {
-        "RabbitMQUrl": "{{ .Values.rabbit.url }}",
-        "UserName": "{{ .Values.rabbit.user }}",
-        "Password": "{{ .Values.rabbit.password }}",
-        "VirtualHost": "{{ .Values.rabbit.vhost  }}"
+      "Logging":{
+        "Console": {
+          "FormatterName": "json"
+        },
+        "LogLevel": {
+          "Default": "Warning",
+          "Microsoft": "Warning",
+          "Microsoft.Diagnostics": "Warning",
+          "Microsoft.Hosting.Lifetime": "Information"
+        }
       }
     }

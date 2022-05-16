@@ -83,7 +83,7 @@ builder.Services
             sp => new MongoMessageQueueBuilderOptions
             {
                 MessageQueue = MongoMessageQueue.Default,
-                ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoDBMessagingConnectionString")
+                ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoMessaging")
             });
     })
     .ClearAllExchanges()
