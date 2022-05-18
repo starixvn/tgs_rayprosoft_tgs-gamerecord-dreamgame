@@ -1,0 +1,28 @@
+﻿using System.Reflection;
+using Tgs.GameProviders.QueryServer.Client;
+using Tgs.GameProviders.Client;
+using Tgs.GameRecord.DreamGameService.MessageHandlers;
+using Tgs.GameRecord.DreamGameService;
+
+namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class ServiceCollecitonExtensions
+    {
+        public static IServiceCollection AddGameRecord(
+            this IServiceCollection services,
+            Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions,
+            Action<GameProvidersQueryServerClientOptions, IServiceProvider> gameProvidersQueryServerClientOptions
+            )
+            => services
+                .RegisterAllServiceUtilityTypes(
+                    Assembly.GetExecutingAssembly(),
+                    ServiceLifetime.Transient)
+                .AddGameProvidersClient(gameProvidersClientOptions)
+                .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
+                .AddTransient<IGameRecordMessageHandler, GameRecordMessageHandler>()
+                .AddTransient<IGameProviderService, GameProviderService>()
+                .AddTransient<IGameService, GameService>()
+                .AddTransient<IPlayerService, PlayerService>()
+                .AddTransient<ISystemClock, SystemClock>();
+    }
+}

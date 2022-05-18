@@ -50,6 +50,7 @@ app.kubernetes.io/name: {{ include "game-gamerecord-dg-service.name" . }}
 app: {{ include "game-gamerecord-dg-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 tgs.kind: game
+tgs.game.kind: gamerecord
 {{- end }}
 
 {{/*
