@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using MongoDB.Bson;
 using Tgs.MessageQueue;
-using Tgs.GameRecord.DreamGameService.MessageHandlers;
 
 namespace Tgs.GameRecord.DreamGameService.MessageHandlers
 {

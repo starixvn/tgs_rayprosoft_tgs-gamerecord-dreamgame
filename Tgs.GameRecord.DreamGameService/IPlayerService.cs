@@ -1,5 +1,4 @@
-﻿using Tgs.GameRecord.DreamGameService;
-namespace Tgs.GameRecord.DreamGameService
+﻿namespace Tgs.GameRecord.DreamGameService
 {
     public interface IPlayerService
     {

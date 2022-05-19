@@ -1,10 +1,9 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Tgs.MessageQueue;
-using Tgs.ServiceUtility;
 using Tgs.GameProviders.Domains;
 using Tgs.GameRecord.DreamGameService.ApplicationServices;
-using Tgs.GameRecord.DreamGameService.ReceiveHandlers;
+using Tgs.MessageQueue;
+using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.ReceiveHandlers
 {

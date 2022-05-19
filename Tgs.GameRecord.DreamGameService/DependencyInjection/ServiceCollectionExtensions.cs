@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
-using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameProviders.Client;
-using Tgs.GameRecord.DreamGameService.MessageHandlers;
+using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameRecord.DreamGameService;
+using Tgs.GameRecord.DreamGameService.MessageHandlers;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class ServiceCollecitonExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddGameRecord(
             this IServiceCollection services,

@@ -1,14 +1,13 @@
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
-using Npgsql;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Prometheus;
+using Tgs.GameRecord.DreamGameService.ReceiveHandlers;
 using Tgs.MessageQueue.MongoDB.Configuration;
 using MongoMessageQueue = MongoDB.Messaging.MessageQueue;
-using Tgs.GameRecord.DreamGameService.ReceiveHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 

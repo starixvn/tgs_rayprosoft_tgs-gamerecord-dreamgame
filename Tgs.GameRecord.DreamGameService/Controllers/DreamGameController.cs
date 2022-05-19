@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Tgs.ServiceUtility;
 using Tgs.GameRecord.DreamGameService.ApplicationServices;
+using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.Controllers
 {
