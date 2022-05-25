@@ -34,15 +34,23 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "game-gamerecord-dg-service.labels" -}}
+helm.sh/chart: {{ include "game-gamerecord-dg-service.chart" . }}
 {{ include "game-gamerecord-dg-service.selectorLabels" . }}
-tgs.kind: game
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
 {{- define "game-gamerecord-dg-service.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "game-gamerecord-dg-service.name" . }}
 app: {{ include "game-gamerecord-dg-service.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+tgs.kind: game
+tgs.game.kind: gamerecord
 {{- end }}
 
 {{/*
