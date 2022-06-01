@@ -1,4 +1,4 @@
-﻿using Tgs.GameProviders.QueryServer.Models;
+﻿using Tgs.GameRounds.Common;
 
 namespace Tgs.GameRecord.DreamGameService
 {
@@ -11,7 +11,7 @@ namespace Tgs.GameRecord.DreamGameService
         public int GameId { get; init; }
         public string ExternalGameId { get; init; } = default!;
         public string CurrencyCode { get; init; } = default!;
-        public RoundStatus Status { get; init; }
+        public GameRoundStatus Status { get; init; }
         public Guid GameProviderConfigurationId { get; init; }
         public Guid WalletId { get; init; }
         public DateTimeOffset CreatedOn { get; init; }
@@ -28,7 +28,7 @@ namespace Tgs.GameRecord.DreamGameService
         public decimal? PlayerWinLoss { get; init; }
         public decimal? TieBetAdjustment { get; init; }
         public string AdditionalData { get; init; } = default!;
-        public RoundClientStatus ClientStatus { get; init; }
+        public GameRoundClientStatus ClientStatus { get; init; }
         public bool Success { get; init; }
     }
 }
