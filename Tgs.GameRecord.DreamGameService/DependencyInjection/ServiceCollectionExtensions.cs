@@ -3,6 +3,7 @@ using Tgs.GameProviders.Client;
 using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameRecord.DreamGameService;
 using Tgs.GameRecord.DreamGameService.MessageHandlers;
+using Tgs.GameRounds.Client;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -11,7 +12,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddGameRecord(
             this IServiceCollection services,
             Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions,
-            Action<GameProvidersQueryServerClientOptions, IServiceProvider> gameProvidersQueryServerClientOptions
+            Action<GameProvidersQueryServerClientOptions, IServiceProvider> gameProvidersQueryServerClientOptions,
+            Action<GameRoundsClientOptions, IServiceProvider> gameRoundsClientOptions
             )
             => services
                 .RegisterAllServiceUtilityTypes(
@@ -19,6 +21,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     ServiceLifetime.Transient)
                 .AddGameProvidersClient(gameProvidersClientOptions)
                 .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
+                .AddGameRoundsClient(gameRoundsClientOptions)
                 .AddTransient<IGameRecordMessageHandler, GameRecordMessageHandler>()
                 .AddTransient<IGameProviderService, GameProviderService>()
                 .AddTransient<IGameService, GameService>()

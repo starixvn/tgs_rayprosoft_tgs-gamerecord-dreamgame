@@ -92,12 +92,17 @@ builder.Services
     .AddGameRecord((options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersBaseUrl");
+        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersServiceBaseUrl");
     },
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersQueryServerBaseUrl");
+        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersQueryServiceBaseUrl");
+    },
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameRoundsServiceBaseUrl");
     });
 
 builder.Services

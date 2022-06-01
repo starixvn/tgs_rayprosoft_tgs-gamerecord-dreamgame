@@ -7,8 +7,9 @@ data:
   appsettings.json: |
     {
       "GameRecord": {
-        "GameProvidersBaseUrl": "http://game-gameproviders",
-        "GameProvidersQueryServerBaseUrl": "http://game-gameprovider-queryserver"
+        "GameProvidersServiceBaseUrl": "http://game-gameproviders",
+        "GameProvidersQueryServiceBaseUrl": "http://game-gameprovider-queryserver",
+        "GameRoundsServiceBaseUrl": "http://game-gamerounds"
       }
     }
   monitor.settings.json: |
