@@ -5,10 +5,12 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.GameProviders.Client;
-using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameProviders.QueryServer.Models;
 using Tgs.GameRecord.DreamGameService;
 using Tgs.GameRecord.DreamGameService.ApplicationServices;
+using Tgs.GameRounds.Client;
+using Tgs.GameRounds.Common;
+using Tgs.GameRounds.Common.ViewModels;
 
 namespace Tgs.GameRecord.DreamGameServiceUnitTest
 {
@@ -20,7 +22,7 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
         {
             var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
             var fakeGameProvider = Substitute.For<IGameProviderService>();
-            var fakeGameProvidersQueryServerClient = Substitute.For<IGameProvidersQueryServerClient>();
+            var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
             var fakeGameRecordMessageHandler = Substitute.For<IGameRecordMessageHandler>();
             var fakeGame = Substitute.For<IGameService>();
             var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
@@ -82,42 +84,51 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
 
             _ = fakeSystemClock.CurrentTime.Returns(new DateTimeOffset(DateTime.Parse("2022-04-21 18:35:00"), TimeSpan.FromHours(+8)));
 
-            _ = fakeGameProvidersQueryServerClient.RoundGetAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<string>()).Returns(new RoundModel(
-                RoundId: Guid.NewGuid(),
-                ExternalRoundId: "10893708376",
-                GameProviderId: gameProviderId,
-                PlayerCode: "test",
-                GameId: 1,
-                CurrencyCode: "CNY",
-                Status: RoundStatus.Open,
-                GameProviderConfigurationId: Guid.NewGuid(),
-                WalletId: Guid.NewGuid(),
-                CreatedOn: DateTimeOffset.UtcNow,
-                ClosedOn: null,
-                UpdatedOn: DateTimeOffset.UtcNow,
-                BrandId: Guid.NewGuid(),
-                ExternalCreatedOn: DateTimeOffset.UtcNow,
-                ExternalClosedOn: null,
-                BetAmount: 20m,
-                ValidBetAmount: 20m,
-                SettleAmount: null,
-                Commission: null,
-                Turnover: null,
-                WinLoss: null,
-                TieBetAdjustment: null,
-                ClientStatus: RoundClientStatus.Open,
-                ReopenTurnoverAdjustment: null,
-                ReopenedOn: null,
-                EffectiveBettingPercentage: null,
-                AdditionalData: string.Empty));
+            var gameRoundDataResponse = new GameRoundDataResponse()
+            {
+                Success = true,
+                HttpStatusCode = System.Net.HttpStatusCode.OK,
+                Data = new GameRoundViewModel(
+                    RoundId: Guid.NewGuid(),
+                    ExternalRoundId: "10893708376",
+                    GameProviderId: gameProviderId,
+                    GameProviderCode: "DG",
+                    PlayerCode: "test",
+                    GameId: 1,
+                    ExternalGameId: "dg",
+                    CurrencyCode: "CNY",
+                    Status: GameRoundStatus.Open,
+                    GameProviderConfigurationId: Guid.NewGuid(),
+                    WalletId: Guid.NewGuid(),
+                    CreatedOn: DateTimeOffset.UtcNow,
+                    ClosedOn: null,
+                    UpdatedOn: DateTimeOffset.UtcNow,
+                    BrandId: Guid.NewGuid(),
+                    ExternalCreatedOn: DateTimeOffset.UtcNow,
+                    ExternalClosedOn: null,
+                    BetAmount: 20m,
+                    ValidBetAmount: 20m,
+                    SettleAmount: null,
+                    Commission: null,
+                    Turnover: null,
+                    CompanyWinLoss: null,
+                    TieBetAdjustment: null,
+                    ClientStatus: GameRoundClientStatus.Open,
+                    ReopenTurnoverAdjustment: null,
+                    ReopenedOn: null,
+                    EffectiveBettingPercentage: null,
+                    AdditionalData: string.Empty)
+            };
+
+            _ = fakeGameRoundsClient.GetGameRoundAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<Guid>()).Returns(gameRoundDataResponse);
 
             _ = fakePlayer.GetAsync(Arg.Any<Guid>(), Arg.Any<string>()).Returns(new PlayerInfo(Guid.NewGuid(), "test", "CNY", Guid.NewGuid(), Guid.NewGuid()));
 
             var service = new GameRecordCommandService(
                  fakeDreamGameClient,
                  fakeGameProvider,
-                 fakeGameProvidersQueryServerClient,
                  fakeGameRecordMessageHandler,
+                 fakeGameRoundsClient,
                  fakeGame,
                  fakeLogger,
                  fakePlayer,
@@ -135,7 +146,7 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
         {
             var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
             var fakeGameProvider = Substitute.For<IGameProviderService>();
-            var fakeGameProvidersQueryServerClient = Substitute.For<IGameProvidersQueryServerClient>();
+            var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
             var fakeGameRecordMessageHandler = Substitute.For<IGameRecordMessageHandler>();
             var fakeGame = Substitute.For<IGameService>();
             var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
@@ -199,8 +210,8 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
             var service = new GameRecordCommandService(
                  fakeDreamGameClient,
                  fakeGameProvider,
-                 fakeGameProvidersQueryServerClient,
                  fakeGameRecordMessageHandler,
+                 fakeGameRoundsClient,
                  fakeGame,
                  fakeLogger,
                  fakePlayer,

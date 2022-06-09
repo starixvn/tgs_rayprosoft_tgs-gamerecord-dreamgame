@@ -1,6 +1,6 @@
 ﻿using Tgs.GameProviders.Client;
-using Tgs.GameProviders.QueryServer.Client;
-using Tgs.GameProviders.QueryServer.Models;
+using Tgs.GameRounds.Client;
+using Tgs.GameRounds.Common;
 using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.ApplicationServices
@@ -9,8 +9,8 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
     {
         private readonly IDreamGameClient _dreamGameClient;
         private readonly IGameProviderService _gameProviderService;
-        private readonly IGameProvidersQueryServerClient _gameProvidersQueryServerClient;
         private readonly IGameRecordMessageHandler _gameRecordMessageHandler;
+        private readonly IGameRoundsClient _gameRoundsClient;
         private readonly IGameService _gameService;
         private readonly ILogger<GameRecordCommandService> _logger;
         private readonly IPlayerService _playerService;
@@ -19,8 +19,8 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
         public GameRecordCommandService(
             IDreamGameClient dreamGameClient,
             IGameProviderService gameProviderService,
-            IGameProvidersQueryServerClient gameProvidersQueryServerClient,
             IGameRecordMessageHandler gameRecordMessageHandler,
+            IGameRoundsClient gameRoundsClient,
             IGameService gameService,
             ILogger<GameRecordCommandService> logger,
             IPlayerService playerService,
@@ -28,8 +28,8 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
         {
             _dreamGameClient = dreamGameClient ?? throw new ArgumentNullException(nameof(dreamGameClient));
             _gameProviderService = gameProviderService ?? throw new ArgumentNullException(nameof(gameProviderService));
-            _gameProvidersQueryServerClient = gameProvidersQueryServerClient ?? throw new ArgumentNullException(nameof(gameProvidersQueryServerClient));
             _gameRecordMessageHandler = gameRecordMessageHandler ?? throw new ArgumentNullException(nameof(gameRecordMessageHandler));
+            _gameRoundsClient = gameRoundsClient ?? throw new ArgumentNullException(nameof(gameRoundsClient));
             _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
@@ -62,42 +62,48 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
 
             foreach (var data in gameRecords)
             {
-                var roundModel = await _gameProvidersQueryServerClient.RoundGetAsync(gameProviderId.Value, data.ExternalRoundId, game.GameId, data.PlayerCode).ConfigureAwait(false);
-                if (roundModel == null)
-                {
-                    var tempGame = await _gameService.GetGameAsync(gameProviderId.Value, data.ExternalGameId).ConfigureAwait(false);
-                    if (tempGame == null)
-                    {
-                        continue;
-                    }
-                    roundModel = await _gameProvidersQueryServerClient.RoundGetAsync(gameProviderId.Value, data.ExternalRoundId, tempGame.GameId, data.PlayerCode).ConfigureAwait(false);
-                    if (roundModel == null)
-                    {
-                        continue;
-                    }
-                }
-
                 var playerInfo = await _playerService.GetAsync(gameProviderId.Value, data.PlayerCode).ConfigureAwait(false);
                 if (playerInfo == null)
                 {
                     continue;
                 }
 
-                if (roundModel.Status == RoundStatus.Open || data.Status == GameRecordRoundStatus.Closed)
+                var roundModel = await _gameRoundsClient.GetGameRoundAsync(gameProviderId.Value, data.ExternalRoundId, game.GameId, playerInfo.DefaultWalletId).ConfigureAwait(false);
+
+                if (!roundModel.Success)
+                {
+                    continue;
+                }
+
+                if (roundModel.Data == null)
+                {
+                    var tempGame = await _gameService.GetGameAsync(gameProviderId.Value, data.ExternalGameId).ConfigureAwait(false);
+                    if (tempGame == null)
+                    {
+                        continue;
+                    }
+                    roundModel = await _gameRoundsClient.GetGameRoundAsync(gameProviderId.Value, data.ExternalRoundId, tempGame.GameId, playerInfo.DefaultWalletId).ConfigureAwait(false);
+                    if (roundModel.Data == null)
+                    {
+                        continue;
+                    }
+                }
+
+                if (roundModel.Data.Status == GameRoundStatus.Open || data.Status == GameRecordRoundStatus.Closed)
                 {
                     await _gameRecordMessageHandler.SendGameRoundAsync(new GameRoundData()
                     {
                         GameProviderCode = data.GameProviderCode,
-                        GameProviderId = roundModel.GameProviderId,
-                        ExternalRoundId = roundModel.ExternalRoundId,
-                        PlayerCode = roundModel.PlayerCode,
-                        GameId = roundModel.GameId,
+                        GameProviderId = roundModel.Data.GameProviderId,
+                        ExternalRoundId = roundModel.Data.ExternalRoundId,
+                        PlayerCode = roundModel.Data.PlayerCode,
+                        GameId = roundModel.Data.GameId,
                         ExternalGameId = game.GameExternalId,
                         CurrencyCode = (playerInfo == null) ? string.Empty : playerInfo.DefaultWalletCurrencyCode,
-                        Status = (RoundStatus)data.Status,
-                        GameProviderConfigurationId = roundModel.GameProviderConfigurationId,
+                        Status = (GameRoundStatus)data.Status,
+                        GameProviderConfigurationId = roundModel.Data.GameProviderConfigurationId,
                         WalletId = (playerInfo == null) ? Guid.Empty : playerInfo.DefaultWalletId,
-                        CreatedOn = roundModel.CreatedOn,
+                        CreatedOn = roundModel.Data.CreatedOn,
                         ClosedOn = (data.Status == GameRecordRoundStatus.Closed) ? DateTimeOffset.UtcNow : null,
                         UpdatedOn = DateTimeOffset.UtcNow,
                         BrandId = (playerInfo == null) ? Guid.Empty : playerInfo.BrandId,
@@ -110,7 +116,7 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
                         Turnover = data.Turnover,
                         SettleAmount = data.SettleAmount,
                         TieBetAdjustment = null,
-                        ClientStatus = (RoundClientStatus)data.ClientStatus,
+                        ClientStatus = (GameRoundClientStatus)data.ClientStatus,
                         AdditionalData = data.AdditionalData,
                         Success = true
                     }).ConfigureAwait(false);
