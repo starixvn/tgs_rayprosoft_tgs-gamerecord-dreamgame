@@ -12,7 +12,6 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
         private readonly IGameRecordMessageHandler _gameRecordMessageHandler;
         private readonly IGameRoundsClient _gameRoundsClient;
         private readonly IGameService _gameService;
-        private readonly ILogger<GameRecordCommandService> _logger;
         private readonly IPlayerService _playerService;
         private readonly ISystemClock _systemClock;
 
@@ -22,7 +21,6 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
             IGameRecordMessageHandler gameRecordMessageHandler,
             IGameRoundsClient gameRoundsClient,
             IGameService gameService,
-            ILogger<GameRecordCommandService> logger,
             IPlayerService playerService,
             ISystemClock systemClock)
         {
@@ -31,7 +29,6 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
             _gameRecordMessageHandler = gameRecordMessageHandler ?? throw new ArgumentNullException(nameof(gameRecordMessageHandler));
             _gameRoundsClient = gameRoundsClient ?? throw new ArgumentNullException(nameof(gameRoundsClient));
             _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
             _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
         }
@@ -50,7 +47,7 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
                 return;
             }
 
-            var gameRecordResponse = await _dreamGameClient.GameRecordListAsync().ConfigureAwait(false);
+            var gameRecordResponse = await _dreamGameClient.GameRecordListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (gameRecordResponse == null || !gameRecordResponse.Success || gameRecordResponse.Datas == null)
             {
@@ -58,7 +55,7 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
             }
 
             var markGameRecords = new List<string>();
-            var gameRecords = gameRecordResponse.Datas.Where(x => x.ExternalClosedOn.HasValue ? x.ExternalClosedOn.Value.UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3) : true);
+            var gameRecords = gameRecordResponse.Datas.Where(x => !x.ExternalClosedOn.HasValue || x.ExternalClosedOn.Value.UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3));
 
             foreach (var data in gameRecords)
             {
@@ -126,7 +123,7 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
             }
             if (markGameRecords.Any())
             {
-                await _dreamGameClient.MarkGameRecordListAsync(markGameRecords).ConfigureAwait(false);
+                await _dreamGameClient.MarkGameRecordListAsync(markGameRecords, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
     }
