@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.GameProviders.Client;
@@ -25,7 +24,6 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
             var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
             var fakeGameRecordMessageHandler = Substitute.For<IGameRecordMessageHandler>();
             var fakeGame = Substitute.For<IGameService>();
-            var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
             var fakePlayer = Substitute.For<IPlayerService>();
             var fakeSystemClock = Substitute.For<ISystemClock>();
 
@@ -130,7 +128,6 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
                  fakeGameRecordMessageHandler,
                  fakeGameRoundsClient,
                  fakeGame,
-                 fakeLogger,
                  fakePlayer,
                  fakeSystemClock);
 
@@ -149,7 +146,6 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
             var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
             var fakeGameRecordMessageHandler = Substitute.For<IGameRecordMessageHandler>();
             var fakeGame = Substitute.For<IGameService>();
-            var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
             var fakePlayer = Substitute.For<IPlayerService>();
             var fakeSystemClock = Substitute.For<ISystemClock>();
 
@@ -213,7 +209,6 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
                  fakeGameRecordMessageHandler,
                  fakeGameRoundsClient,
                  fakeGame,
-                 fakeLogger,
                  fakePlayer,
                  fakeSystemClock);
 
