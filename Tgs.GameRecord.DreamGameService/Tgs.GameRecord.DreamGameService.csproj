@@ -23,9 +23,9 @@
 		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
 		<PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
 		<PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="6.0.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
 		<PackageReference Include="Tgs.GameProviders.Client" Version="0.0.41" />
-		<PackageReference Include="Tgs.GameProviders.QueryServer.Client" Version="0.0.13" />
+		<PackageReference Include="Tgs.GameProviders.QueryServer.Client" Version="0.0.14" />
 		<PackageReference Include="Tgs.GameRounds.Client" Version="0.0.19" />
 		<PackageReference Include="Tgs.Logging" Version="0.0.19" />
 		<PackageReference Include="Tgs.MessageQueue" Version="2.1.0" />
