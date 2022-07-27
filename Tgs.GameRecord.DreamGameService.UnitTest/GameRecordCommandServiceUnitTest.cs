@@ -32,12 +32,13 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
 
             var game = new GameModel(
                 GameId: 1,
-                Status: GameStatus.Active,
+                GameProviderId: gameProviderId,
+                GameProviderCode: "DG",
                 GameExternalId: "dg",
+                Status: GameStatus.Active,
                 Description: null,
                 EndpointPath: null,
                 RuleUrl: null,
-                GameProviderId: gameProviderId,
                 GameType: GameType.LiveDealer,
                 PlatformType: GamePlatformType.DesktopAndMobile,
                 SubGame: true,
@@ -154,12 +155,13 @@ namespace Tgs.GameRecord.DreamGameServiceUnitTest
 
             var game = new GameModel(
                 GameId: 1,
-                Status: GameStatus.Active,
+                GameProviderId: gameProviderId,
+                GameProviderCode: "DG",
                 GameExternalId: "dg",
+                Status: GameStatus.Active,
                 Description: null,
                 EndpointPath: null,
                 RuleUrl: null,
-                GameProviderId: gameProviderId,
                 GameType: GameType.LiveDealer,
                 PlatformType: GamePlatformType.DesktopAndMobile,
                 SubGame: true,
