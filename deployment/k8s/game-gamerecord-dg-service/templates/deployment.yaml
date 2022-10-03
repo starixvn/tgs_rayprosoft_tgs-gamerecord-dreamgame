@@ -46,7 +46,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: tgs-connections
-                  key: mongo-messaging
+                  key: mongo-gp-scheduler-messaging
             - name: RabbitMQ__RabbitMQUrl
               valueFrom:
                 secretKeyRef:
