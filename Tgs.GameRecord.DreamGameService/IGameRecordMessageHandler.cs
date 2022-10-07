@@ -1,9 +1,9 @@
-﻿namespace Tgs.GameRecord.DreamGameService
+﻿using Tgs.GameRounds.Common.MessageModels;
+
+namespace Tgs.GameRecord.DreamGameService
 {
     public interface IGameRecordMessageHandler
     {
-        ValueTask SendGameRoundAsync(GameRoundData data);
-
-        ValueTask SendGameRoundDetailAsync(GameRoundDetail data);
+        ValueTask SendGameRoundAsync(GameRecordMessage data);
     }
 }
