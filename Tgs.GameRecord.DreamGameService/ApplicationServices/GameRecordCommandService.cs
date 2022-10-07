@@ -1,6 +1,7 @@
 ﻿using Tgs.GameProviders.Client;
 using Tgs.GameRounds.Client;
 using Tgs.GameRounds.Common;
+using Tgs.GameRounds.Common.MessageModels;
 using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.ApplicationServices
@@ -65,7 +66,14 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
                     continue;
                 }
 
-                var roundModel = await _gameRoundsClient.GetGameRoundAsync(gameProviderId.Value, data.ExternalRoundId, game.GameId, playerInfo.DefaultWalletId).ConfigureAwait(false);
+                var roundModel = await _gameRoundsClient
+                    .GetGameRoundAsync(
+                        gameProviderId.Value,
+                        data.ExternalRoundId,
+                        game.GameId,
+                        playerInfo.DefaultWalletId,
+                        cancellationToken)
+                    .ConfigureAwait(false);
 
                 if (!roundModel.Success)
                 {
@@ -79,7 +87,13 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
                     {
                         continue;
                     }
-                    roundModel = await _gameRoundsClient.GetGameRoundAsync(gameProviderId.Value, data.ExternalRoundId, tempGame.GameId, playerInfo.DefaultWalletId).ConfigureAwait(false);
+                    roundModel = await _gameRoundsClient
+                            .GetGameRoundAsync(
+                                gameProviderId.Value,
+                                data.ExternalRoundId,
+                                tempGame.GameId,
+                                playerInfo.DefaultWalletId,
+                                cancellationToken).ConfigureAwait(false);
                     if (roundModel.Data == null)
                     {
                         continue;
@@ -88,35 +102,31 @@ namespace Tgs.GameRecord.DreamGameService.ApplicationServices
 
                 if (roundModel.Data.Status == GameRoundStatus.Open || data.Status == GameRecordRoundStatus.Closed)
                 {
-                    await _gameRecordMessageHandler.SendGameRoundAsync(new GameRoundData()
-                    {
-                        GameProviderCode = data.GameProviderCode,
-                        GameProviderId = roundModel.Data.GameProviderId,
-                        ExternalRoundId = roundModel.Data.ExternalRoundId,
-                        PlayerCode = roundModel.Data.PlayerCode,
-                        GameId = roundModel.Data.GameId,
-                        ExternalGameId = game.GameExternalId,
-                        CurrencyCode = (playerInfo == null) ? string.Empty : playerInfo.DefaultWalletCurrencyCode,
-                        Status = (GameRoundStatus)data.Status,
-                        GameProviderConfigurationId = roundModel.Data.GameProviderConfigurationId,
-                        WalletId = (playerInfo == null) ? Guid.Empty : playerInfo.DefaultWalletId,
-                        CreatedOn = roundModel.Data.CreatedOn,
-                        ClosedOn = (data.Status == GameRecordRoundStatus.Closed) ? DateTimeOffset.UtcNow : null,
-                        UpdatedOn = DateTimeOffset.UtcNow,
-                        BrandId = (playerInfo == null) ? Guid.Empty : playerInfo.BrandId,
-                        ExternalCreatedOn = data.ExternalCreatedOn,
-                        ExternalClosedOn = data.ExternalClosedOn,
-                        BetAmount = data.BetAmount,
-                        ValidBetAmount = data.ValidBetAmount,
-                        PlayerWinLoss = data.PlayerWinLoss,
-                        Commission = data.Commission,
-                        Turnover = data.Turnover,
-                        SettleAmount = data.SettleAmount,
-                        TieBetAdjustment = null,
-                        ClientStatus = (GameRoundClientStatus)data.ClientStatus,
-                        AdditionalData = data.AdditionalData,
-                        Success = true
-                    }).ConfigureAwait(false);
+                    var messager = new GameRecordMessage(
+                        ExternalRoundId: roundModel.Data.ExternalRoundId,
+                        GameProviderId: roundModel.Data.GameProviderId,
+                        GameProviderCode: data.GameProviderCode,
+                        GameId: roundModel.Data.GameId,
+                        ExternalGameId: game.GameExternalId,
+                        PlayerCode: roundModel.Data.PlayerCode,
+                        CurrencyCode: (playerInfo == null) ? string.Empty : playerInfo.DefaultWalletCurrencyCode,
+                        WalletId: (playerInfo == null) ? Guid.Empty : playerInfo.DefaultWalletId,
+                        BrandId: (playerInfo == null) ? Guid.Empty : playerInfo.BrandId,
+                        GameProviderConfigurationId: roundModel.Data.GameProviderConfigurationId,
+                        Status: (GameRoundStatus)data.Status,
+                        ClientStatus: (GameRoundClientStatus)data.ClientStatus,
+                        ExternalCreatedOn: data.ExternalCreatedOn!.Value,
+                        ExternalClosedOn: data.ExternalClosedOn,
+                        BetAmount: data.BetAmount.GetValueOrDefault(0),
+                        ValidBetAmount: data.ValidBetAmount.GetValueOrDefault(0),
+                        SettleAmount: data.SettleAmount.GetValueOrDefault(0),
+                        Commission: data.Commission.GetValueOrDefault(0),
+                        Turnover: data.Turnover.GetValueOrDefault(0),
+                        PlayerWinLoss: data.PlayerWinLoss.GetValueOrDefault(0),
+                        AdditionalData: data.AdditionalData,
+                        Success: true);
+
+                    await _gameRecordMessageHandler.SendGameRoundAsync(messager).ConfigureAwait(false);
                 }
 
                 markGameRecords.Add(data.ExternalRoundId);
