@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using MongoDB.Bson;
+using Tgs.GameRounds.Common.MessageModels;
 using Tgs.MessageQueue;
 
 namespace Tgs.GameRecord.DreamGameService.MessageHandlers
@@ -17,7 +18,7 @@ namespace Tgs.GameRecord.DreamGameService.MessageHandlers
             _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         }
 
-        public ValueTask SendGameRoundAsync(GameRoundData data)
+        public ValueTask SendGameRoundAsync(GameRecordMessage data)
         {
             _logger.Log(LogLevel.Information,
                 new EventId(1000, nameof(GameRecordMessageHandler)),
@@ -30,21 +31,6 @@ namespace Tgs.GameRecord.DreamGameService.MessageHandlers
                 null,
                 (state, ex) => JsonSerializer.Serialize(state));
             return _messageSender.PublishAsync($"tgs.gp.gamerecord.database.round.dg", data.ToBson());
-        }
-
-        public ValueTask SendGameRoundDetailAsync(GameRoundDetail data)
-        {
-            _logger.Log(LogLevel.Information,
-                new EventId(1000, nameof(GameRecordMessageHandler)),
-                new
-                {
-                    MessageQueue = "tgs.gp.gamerecord.database.detail",
-                    Data = data,
-                    SendDateTime = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(+8)).ToString("O")
-                },
-                null,
-                (state, ex) => JsonSerializer.Serialize(state));
-            return _messageSender.PublishAsync("tgs.gp.gamerecord.database.detail", data.ToBson());
         }
     }
 }
