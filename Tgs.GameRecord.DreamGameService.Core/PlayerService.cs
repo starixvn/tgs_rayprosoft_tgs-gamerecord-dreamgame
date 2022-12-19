@@ -28,7 +28,11 @@ internal class PlayerService : IPlayerService
         var key = $"game:dg:player:get:{playerCode}";
         if (!_memoryCache.TryGetValue(key, out PlayerModel? playerInfo))
         {
-            var player = await _gameProvidersQueryServerClient.PlayerGetAsync(playerCode).ConfigureAwait(false);
+            var player = await _gameProvidersQueryServerClient
+                .PlayerGetAsync(
+                    playerCode: playerCode,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             if (player is null)
             {

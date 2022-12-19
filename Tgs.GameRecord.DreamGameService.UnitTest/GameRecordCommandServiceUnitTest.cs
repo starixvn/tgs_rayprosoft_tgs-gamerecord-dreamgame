@@ -124,7 +124,7 @@ public class GameRecordCommandServiceUnitTest
 
         _ = fakeGameRoundsClient.GetGameRoundAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<Guid>()).Returns(gameRoundDataResponse);
 
-        _ = fakePlayer.GetAsync(Arg.Any<Guid>(), Arg.Any<string>()).Returns(new PlayerModel(
+        _ = fakePlayer.GetAsync(Arg.Any<string>()).Returns(new PlayerModel(
             Guid.NewGuid(),
             "TGS",
             Guid.NewGuid(),

@@ -67,7 +67,11 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 
         foreach (var data in gameRecords)
         {
-            var player = await _playerService.GetAsync(data.PlayerCode).ConfigureAwait(false);
+            var player = await _playerService
+                .GetAsync(
+                    playerCode: data.PlayerCode,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
             if (player is null)
             {
                 continue;
