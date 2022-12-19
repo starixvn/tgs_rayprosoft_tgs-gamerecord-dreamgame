@@ -67,10 +67,9 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 
         foreach (var data in gameRecords)
         {
-            var player = await _playerService.GetAsync(gameProviderId.Value, data.PlayerCode).ConfigureAwait(false);
+            var player = await _playerService.GetAsync(data.PlayerCode).ConfigureAwait(false);
             if (player is null)
             {
-                _logger.LogError("player does not exist({playerCode})", data.PlayerCode);
                 continue;
             }
 

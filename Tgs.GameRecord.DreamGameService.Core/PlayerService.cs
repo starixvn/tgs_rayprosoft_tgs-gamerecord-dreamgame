@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameProviders.QueryServer.Models;
 
@@ -7,30 +8,36 @@ namespace Tgs.GameRecord.DreamGameService.Core;
 internal class PlayerService : IPlayerService
 {
     private readonly IGameProvidersQueryServerClient _gameProvidersQueryServerClient;
+    private readonly ILogger<PlayerService> _logger;
     private readonly IMemoryCache _memoryCache;
 
     public PlayerService(
+        ILogger<PlayerService> logger,
         IMemoryCache memoryCache,
         IGameProvidersQueryServerClient gameProvidersQueryServerClient)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         _gameProvidersQueryServerClient = gameProvidersQueryServerClient ?? throw new ArgumentNullException(nameof(gameProvidersQueryServerClient));
     }
 
-    public async ValueTask<PlayerModel?> GetAsync(Guid gameProviderId, string playerCode)
+    public async ValueTask<PlayerModel?> GetAsync(
+        string playerCode,
+        CancellationToken cancellationToken = default)
     {
-        if (!_memoryCache.TryGetValue($"{gameProviderId}:{playerCode}", out PlayerModel? playerInfo))
+        var key = $"game:dg:player:get:{playerCode}";
+        if (!_memoryCache.TryGetValue(key, out PlayerModel? playerInfo))
         {
-            var playerViewModel = await _gameProvidersQueryServerClient.PlayerGetAsync(playerCode).ConfigureAwait(false);
-            var gameProviderConfigurationId = default(Guid?);
-            if (playerViewModel != null)
+            var player = await _gameProvidersQueryServerClient.PlayerGetAsync(playerCode).ConfigureAwait(false);
+
+            if (player is null)
             {
-                gameProviderConfigurationId = await _gameProvidersQueryServerClient.BrandGetGameProviderConfigurationIdAsync(playerViewModel.BrandId, gameProviderId).ConfigureAwait(false);
+                _logger.LogError("player does not exist({playerCode})", playerCode);
+                return null;
             }
-            if (playerViewModel != null && gameProviderConfigurationId.HasValue)
-            {
-                _ = _memoryCache.Set($"{gameProviderId}:{playerCode}", playerInfo);
-            }
+
+            _ = _memoryCache.Set(key, playerInfo);
+
         }
         return playerInfo;
     }
