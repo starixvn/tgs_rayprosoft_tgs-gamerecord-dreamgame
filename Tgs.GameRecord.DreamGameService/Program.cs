@@ -47,16 +47,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services
     .AddMessageQueue()
-    .AddNatsMessageQueue(natsConfig =>
-    {
-        _ = natsConfig
-        .ConfigQueueOptions((options, sp) =>
-        {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-            options.Url = configuration.GetConnectionString("Nats")!;
-        })
-        .AddHandler<ScheduleMessageHandler>("gp.gamerecord.schedule.dg", "gp.gamerecord.schedule");
-    })
     .AddMongoMessageQueue(config =>
     {
         _ = config
@@ -67,6 +57,16 @@ builder.Services
                 MessageQueue = MongoMessageQueue.Default,
                 ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoMessaging")!
             });
+    })
+    .AddNatsMessageQueue(natsConfig =>
+    {
+        _ = natsConfig
+        .ConfigQueueOptions((options, sp) =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            options.Url = configuration.GetConnectionString("Nats")!;
+        })
+        .AddHandler<ScheduleMessageHandler>("gp.gamerecord.schedule.dg", "gp.gamerecord.schedule");
     })
     .ClearAllExchanges()
     .AddMongoGlobPatternExchange("tgs.gp.gamerecord.database.round.dg", "gp.gamerecord.database", "tgs.gp.gamerecord.database.round.dg");

@@ -1,4 +1,5 @@
-﻿using Tgs.GameProviders.Client;
+﻿using Microsoft.Extensions.Logging;
+using Tgs.GameProviders.Client;
 using Tgs.GameRounds.Client;
 using Tgs.GameRounds.Common;
 using Tgs.GameRounds.Common.MessageModels;
@@ -8,6 +9,7 @@ namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 
 internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 {
+    private readonly ILogger<GameRecordCommandService> _logger;
     private readonly IDreamGameClient _dreamGameClient;
     private readonly IGameProviderService _gameProviderService;
     private readonly IGameRecordMessageHandler _gameRecordMessageHandler;
@@ -17,6 +19,7 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
     private readonly ISystemClock _systemClock;
 
     public GameRecordCommandService(
+        ILogger<GameRecordCommandService> logger,
         IDreamGameClient dreamGameClient,
         IGameProviderService gameProviderService,
         IGameRecordMessageHandler gameRecordMessageHandler,
@@ -25,6 +28,7 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
         IPlayerService playerService,
         ISystemClock systemClock)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dreamGameClient = dreamGameClient ?? throw new ArgumentNullException(nameof(dreamGameClient));
         _gameProviderService = gameProviderService ?? throw new ArgumentNullException(nameof(gameProviderService));
         _gameRecordMessageHandler = gameRecordMessageHandler ?? throw new ArgumentNullException(nameof(gameRecordMessageHandler));
@@ -58,11 +62,15 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
         var markGameRecords = new List<string>();
         var gameRecords = gameRecordResponse.Datas.Where(x => !x.ExternalClosedOn.HasValue || x.ExternalClosedOn.Value.UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3));
 
+
+        _logger.LogInformation("Information Received:{gameRecords}", gameRecords);
+
         foreach (var data in gameRecords)
         {
             var player = await _playerService.GetAsync(gameProviderId.Value, data.PlayerCode).ConfigureAwait(false);
             if (player is null)
             {
+                _logger.LogError("player does not exist({playerCode})", data.PlayerCode);
                 continue;
             }
 
@@ -77,6 +85,7 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 
             if (!roundModel.Success)
             {
+                _logger.LogError("porder does not exist({ExternalRoundId})", data.ExternalRoundId);
                 continue;
             }
 
