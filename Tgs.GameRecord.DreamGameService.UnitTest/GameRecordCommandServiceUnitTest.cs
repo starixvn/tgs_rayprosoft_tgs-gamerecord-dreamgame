@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.GameProviders.Client;
@@ -19,6 +21,7 @@ public class GameRecordCommandServiceUnitTest
     [TestMethod]
     public async Task More_Than_3_Minutes_Settlement_Day_To_Be_Processed()
     {
+        var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
         var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
         var fakeGameProvider = Substitute.For<IGameProviderService>();
         var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
@@ -135,13 +138,14 @@ public class GameRecordCommandServiceUnitTest
             PlayerStatus.Enabled));
 
         var service = new GameRecordCommandService(
-             fakeDreamGameClient,
-             fakeGameProvider,
-             fakeGameRecordMessageHandler,
-             fakeGameRoundsClient,
-             fakeGame,
-             fakePlayer,
-             fakeSystemClock);
+            fakeLogger,
+            fakeDreamGameClient,
+            fakeGameProvider,
+            fakeGameRecordMessageHandler,
+            fakeGameRoundsClient,
+            fakeGame,
+            fakePlayer,
+            fakeSystemClock);
 
         await service.ExecuteAsync(new GameRecordCommand()).ConfigureAwait(false);
 
@@ -153,6 +157,7 @@ public class GameRecordCommandServiceUnitTest
     [TestMethod]
     public async Task Settlement_Date_Less_Than_3_Minutes_Will_Not_Be_Processed()
     {
+        var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
         var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
         var fakeGameProvider = Substitute.For<IGameProviderService>();
         var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
@@ -217,13 +222,14 @@ public class GameRecordCommandServiceUnitTest
 
         _ = fakeSystemClock.CurrentTime.Returns(new DateTimeOffset(DateTime.Parse("2022-04-21 18:33:00"), TimeSpan.FromHours(+8)));
         var service = new GameRecordCommandService(
-             fakeDreamGameClient,
-             fakeGameProvider,
-             fakeGameRecordMessageHandler,
-             fakeGameRoundsClient,
-             fakeGame,
-             fakePlayer,
-             fakeSystemClock);
+            fakeLogger,
+            fakeDreamGameClient,
+            fakeGameProvider,
+            fakeGameRecordMessageHandler,
+            fakeGameRoundsClient,
+            fakeGame,
+            fakePlayer,
+            fakeSystemClock);
 
         await service.ExecuteAsync(new GameRecordCommand()).ConfigureAwait(false);
 
