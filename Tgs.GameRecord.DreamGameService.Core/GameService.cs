@@ -27,14 +27,7 @@ public class GameService : IGameService
             {
                 _ = _memoryCache.Set($"{gameProviderId}:{gameExternalId}", game);
             }
-            return game;
         }
         return game;
-    }
-
-    public async ValueTask<int?> GetGameIdAsync(Guid gameProviderId, string gameExternalId)
-    {
-        var game = await GetGameAsync(gameProviderId, gameExternalId).ConfigureAwait(false);
-        return game?.GameId;
     }
 }

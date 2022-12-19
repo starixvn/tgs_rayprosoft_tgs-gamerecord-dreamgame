@@ -27,7 +27,6 @@ internal class GameProviderService : IGameProviderService
             {
                 _ = _memoryCache.Set($"{GameProviderType.DreamGame}", gameProviderId);
             }
-            return gameProviderId;
         }
         return gameProviderId;
     }
