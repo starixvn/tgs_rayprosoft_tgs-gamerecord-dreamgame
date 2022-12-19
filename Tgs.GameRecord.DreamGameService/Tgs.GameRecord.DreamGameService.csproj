@@ -16,23 +16,19 @@
 		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.2.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
 		<PackageReference Include="OpenTelemetry.Contrib.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta2" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.3.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.3.1" />
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9" />
 		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
-		<PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
-		<PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="6.0.0" />
+		<PackageReference Include="prometheus-net.AspNetCore" Version="7.0.0" />
+		<PackageReference Include="prometheus-net.AspNetCore.HealthChecks" Version="7.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-		<PackageReference Include="Tgs.GameProviders.Client" Version="0.0.45" />
-		<PackageReference Include="Tgs.GameProviders.QueryServer.Client" Version="0.0.16" />
-		<PackageReference Include="Tgs.GameRounds.Client" Version="0.0.31" />
-		<PackageReference Include="Tgs.Logging" Version="0.0.19" />
-		<PackageReference Include="Tgs.MessageQueue" Version="2.1.0" />
-		<PackageReference Include="Tgs.MessageQueue.MongoDB" Version="2.1.1" />
-		<PackageReference Include="Tgs.MessageQueue.RabbitMQ" Version="2.1.3" />
-		<PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
 		<PackageReference Include="Tgs.Interceptors" Version="0.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Tgs.GameRecord.DreamGameService.Core\Tgs.GameRecord.DreamGameService.Core.csproj" />
 	</ItemGroup>
 
 </Project>

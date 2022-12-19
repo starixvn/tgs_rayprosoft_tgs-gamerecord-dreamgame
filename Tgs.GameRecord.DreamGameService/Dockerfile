@@ -7,11 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BuildConfiguration=Release
-RUN --mount=type=secret,id=nuget,dst=/pat cp /pat ~/.nuget/NuGet/NuGet.Config
-RUN dotnet nuget remove source 'Microsoft Visual Studio Offline Packages' || true
 WORKDIR /src
-COPY ["NuGet.config", "."]
+COPY ["nuget.config", "."]
 COPY ["Tgs.GameRecord.DreamGameService/Tgs.GameRecord.DreamGameService.csproj", "Tgs.GameRecord.DreamGameService/"]
+COPY ["Tgs.GameRecord.DreamGameService.Core/Tgs.GameRecord.DreamGameService.Core.csproj", "Tgs.GameRecord.DreamGameService.Core/"]
 RUN dotnet restore "Tgs.GameRecord.DreamGameService/Tgs.GameRecord.DreamGameService.csproj"
 COPY . .
 WORKDIR "/src/Tgs.GameRecord.DreamGameService"
@@ -19,7 +18,7 @@ RUN dotnet build "Tgs.GameRecord.DreamGameService.csproj" -c $BuildConfiguration
 
 FROM build AS publish
 ARG BuildConfiguration
-RUN dotnet publish "Tgs.GameRecord.DreamGameService.csproj" -c $BuildConfiguration -o /app/publish
+RUN dotnet publish "Tgs.GameRecord.DreamGameService.csproj" -c $BuildConfiguration -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

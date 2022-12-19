@@ -5,7 +5,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Prometheus;
-using Tgs.GameRecord.DreamGameService.ReceiveHandlers;
+using Tgs.GameRecord.DreamGameService;
 using Tgs.MessageQueue.MongoDB.Configuration;
 using MongoMessageQueue = MongoDB.Messaging.MessageQueue;
 
@@ -47,32 +47,15 @@ builder.Services.AddSwaggerGen();
 
 builder.Services
     .AddMessageQueue()
-    .AddRabbitMessageQueue(config =>
+    .AddNatsMessageQueue(natsConfig =>
     {
-        _ = config
-            .ConfigQueueOptions((options, sp) =>
-            {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-
-                configuration.GetSection("RabbitMQ").Bind(options);
-
-                options.OnSetupQueueAndExchange = channel =>
-                {
-                    _ = channel.QueueDeclare(
-                        queue: "gp.gamerecord.dg",
-                        durable: true,
-                        exclusive: false,
-                        autoDelete: false,
-                        arguments: null);
-
-                    channel.QueueBind(
-                        "gp.gamerecord.dg",
-                        "amq.direct",
-                        $"tgs.gp.gamerecord.dg",
-                        new Dictionary<string, object>());
-                };
-            })
-            .AddHandler<DreamGameReceiveHandler>("gp.gamerecord.dg", false);
+        _ = natsConfig
+        .ConfigQueueOptions((options, sp) =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            options.Url = configuration.GetConnectionString("Nats")!;
+        })
+        .AddHandler<ScheduleMessageHandler>("gp.gamerecord.schedule.dg", "gp.gamerecord.schedule");
     })
     .AddMongoMessageQueue(config =>
     {
@@ -82,14 +65,14 @@ builder.Services
             sp => new MongoMessageQueueBuilderOptions
             {
                 MessageQueue = MongoMessageQueue.Default,
-                ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoMessaging")
+                ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoMessaging")!
             });
     })
     .ClearAllExchanges()
     .AddMongoGlobPatternExchange("tgs.gp.gamerecord.database.round.dg", "gp.gamerecord.database", "tgs.gp.gamerecord.database.round.dg");
 
 builder.Services
-    .AddGameRecord((options, sp) =>
+    .AddGameRecordCore((options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
         options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersServiceBaseUrl");
