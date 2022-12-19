@@ -27,10 +27,31 @@ build-code:
     key: $BuildCacheKey
     untracked: true 
 
+unit-test:
+  stage: test
+  variables:
+    DOTNET_USE_POLLING_FILE_WATCHER: "true"
+  script:
+    - dotnet test -c $BuildConfiguration -l:"junit;LogFilePath=../TestReports/{assembly}-TestReport.xml" --no-restore --no-build
+  needs:
+    - build-code
+  only:
+    - merge_requests
+    - main
+  cache:
+    key: $BuildCacheKey
+    untracked: true   
+    policy: pull
+  artifacts:
+    when: always
+    reports:
+      junit: ./TestReports/*-TestReport.xml
+
 push-docker-image:
   stage: publish
   needs:
     - build-code
+    - unit-test
   only:
     - main
   cache:
@@ -44,6 +65,7 @@ push-docker-image:
 push-k8s-template:
   stage: publish
   needs:
+    - unit-test
     - push-docker-image
   only:
     - main
