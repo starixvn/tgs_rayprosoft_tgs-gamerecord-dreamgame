@@ -26,13 +26,13 @@ internal class PlayerService : IPlayerService
         CancellationToken cancellationToken = default)
     {
         var key = $"game:dg:player:get:{playerCode}";
-        if (!_memoryCache.TryGetValue(key, out PlayerModel? playerInfo))
+        if (!_memoryCache.TryGetValue(key, out PlayerModel? player))
         {
-            var player = await _gameProvidersQueryServerClient
-                .PlayerGetAsync(
-                    playerCode: playerCode,
-                    cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            player = await _gameProvidersQueryServerClient
+               .PlayerGetAsync(
+                   playerCode: playerCode,
+                   cancellationToken: cancellationToken)
+               .ConfigureAwait(false);
 
             if (player is null)
             {
@@ -40,9 +40,9 @@ internal class PlayerService : IPlayerService
                 return null;
             }
 
-            _ = _memoryCache.Set(key, playerInfo);
+            _ = _memoryCache.Set(key, player);
 
         }
-        return playerInfo;
+        return player;
     }
 }
