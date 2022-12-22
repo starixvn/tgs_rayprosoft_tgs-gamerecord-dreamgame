@@ -41,7 +41,6 @@ internal class PlayerService : IPlayerService
             }
 
             _ = _memoryCache.Set(key, player);
-
         }
         return player;
     }

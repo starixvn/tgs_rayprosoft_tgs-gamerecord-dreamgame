@@ -9,12 +9,12 @@ namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 
 internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 {
-    private readonly ILogger<GameRecordCommandService> _logger;
     private readonly IDreamGameClient _dreamGameClient;
     private readonly IGameProviderService _gameProviderService;
     private readonly IGameRecordMessageHandler _gameRecordMessageHandler;
     private readonly IGameRoundsClient _gameRoundsClient;
     private readonly IGameService _gameService;
+    private readonly ILogger<GameRecordCommandService> _logger;
     private readonly IPlayerService _playerService;
     private readonly ISystemClock _systemClock;
 
@@ -61,7 +61,6 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 
         var markGameRecords = new List<string>();
         var gameRecords = gameRecordResponse.Datas.Where(x => !x.ExternalClosedOn.HasValue || x.ExternalClosedOn.Value.UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3));
-
 
         _logger.LogInformation("Information Received:{gameRecords}", gameRecords);
 
