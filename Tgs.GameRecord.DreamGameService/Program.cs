@@ -49,7 +49,7 @@ builder.Services
     .AddGameRecordCore((options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        _ = configuration.GetSection("GameRecordInfo");
+        configuration.GetSection("GameRecordInfo").Bind(options);
     }, (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
