@@ -10,7 +10,7 @@ internal class UtensilRepository : IUtensil
     private readonly GameRecordInfoOptions _gameRecordInfo;
 
     public UtensilRepository(
-         IOptions<GameRecordInfoOptions> options,
+        IOptions<GameRecordInfoOptions> options,
         IGameCommandClient client)
     {
         _gameRecordInfo = options.Value;

@@ -10,11 +10,15 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddGameRecordCore(
         this IServiceCollection services,
+        Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
         Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions,
         Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
         Action<GameRoundsClientOptions, IServiceProvider> gameRoundsClientOptions
         )
         => services
+            .AddOptions<GameRecordInfoOptions>()
+            .Configure(gameRecordInfoOptions)
+            .Services
             .RegisterAllServiceUtilityTypes(
                 Assembly.GetExecutingAssembly(),
                 ServiceLifetime.Transient)

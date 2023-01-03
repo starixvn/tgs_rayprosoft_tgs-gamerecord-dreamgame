@@ -49,6 +49,10 @@ builder.Services
     .AddGameRecordCore((options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
+        _ = configuration.GetSection("GameRecordInfo");
+    }, (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
         options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersServiceBaseUrl");
     },
     (options, sp) =>
