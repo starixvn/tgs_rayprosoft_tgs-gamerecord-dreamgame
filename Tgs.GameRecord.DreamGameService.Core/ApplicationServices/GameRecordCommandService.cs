@@ -144,7 +144,7 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
                     Success: true);
                 await _messageSender
                     .PublishAsync(
-                        subject: $"tgs.gp.gamerecord.database.round.dg",
+                        subject: _gameRecordInfo.MongoGlobPattern,
                         data: messager.ToBson(),
                         cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
