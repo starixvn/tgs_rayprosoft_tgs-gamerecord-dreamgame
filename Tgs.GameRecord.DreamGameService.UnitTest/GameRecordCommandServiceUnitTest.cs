@@ -1,16 +1,18 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using Tgs.GameCommand.Common;
 using Tgs.GameProviders.Client;
-using Tgs.GameProviders.QueryServer.Models;
 using Tgs.GameRecord.DreamGameService.Core;
 using Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 using Tgs.GameRounds.Client;
 using Tgs.GameRounds.Common;
 using Tgs.GameRounds.Common.ViewModels;
+using Tgs.MessageQueue;
 
 namespace Tgs.GameRecord.DreamGameServiceUnitTest;
 
@@ -20,51 +22,44 @@ public class GameRecordCommandServiceUnitTest
     [TestMethod]
     public async Task More_Than_3_Minutes_Settlement_Day_To_Be_Processed()
     {
+        var fakeOptions = Options.Create(new GameRecordInfoOptions
+        {
+            GameProviderCode = "DG",
+            GameExternalId = "dg",
+            MongoDefine = "gp.gamerecord.database",
+            MongoGlobPattern = "tgs.gp.gamerecord.database.round.dg"
+        });
         var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
         var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
-        var fakeGameProvider = Substitute.For<IGameProviderService>();
         var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
-        var fakeGameRecordMessageHandler = Substitute.For<IGameRecordMessageHandler>();
-        var fakeGame = Substitute.For<IGameService>();
-        var fakePlayer = Substitute.For<IPlayerService>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
         var fakeSystemClock = Substitute.For<ISystemClock>();
+        var fakeUtensil = Substitute.For<IUtensil>();
 
         var gameProviderId = Guid.NewGuid();
-        _ = fakeGameProvider.GameProviderGetGameProviderIdAsync().Returns(gameProviderId);
+        _ = fakeUtensil
+            .GetGameProviderIdAsync(
+                cancellation: Arg.Any<CancellationToken>())
+            .Returns(gameProviderId);
 
-        var game = new GameModel(
-            GameId: 1,
-            GameProviderId: gameProviderId,
-            GameProviderCode: "DG",
-            GameExternalId: "dg",
-            Status: GameStatus.Active,
-            Description: null,
-            EndpointPath: null,
-            RuleUrl: null,
-            GameType: GameType.LiveDealer,
-            PlatformType: GamePlatformType.DesktopAndMobile,
-            SubGame: true,
-            AvailableToBrand: false,
-            HasTurnoverOnTieBet: false,
-            Html5: true,
-            AvailableCurrencies: null,
-            GameCode: "DG",
-            Name: "dg",
-            Localization: null,
-            SubGameProviderCode: "DG");
-
-        _ = fakeGame.GetGameAsync(gameProviderId, "dg").Returns(game);
+        var gameId = 1;
+        _ = fakeUtensil
+            .GetGameIdAsync(
+                Arg.Is(gameProviderId),
+                Arg.Is(fakeOptions.Value.GameExternalId),
+                Arg.Any<CancellationToken>())
+            .Returns(gameId);
 
         var gameRecords = new GameRecordModle[] {
             new GameRecordModle()
             {
-                GameProviderCode ="DG",
+                GameProviderCode =fakeOptions.Value.GameProviderCode,
                 GameProviderId = gameProviderId,
                 PlayerCode ="test",
                 Status= GameRecordRoundStatus.Closed,
                 ClientStatus = GameRecordRoundClientStatus.Loss,
                 ExternalRoundId ="10893708376",
-                ExternalGameId ="dg",
+                ExternalGameId =fakeOptions.Value.GameExternalId,
                 ExternalCreatedOn=new DateTimeOffset(DateTime.Parse("2022-04-21 18:30:39"), TimeSpan.FromHours(+8)),
                 ExternalClosedOn = new DateTimeOffset(DateTime.Parse("2022-04-21 18:31:06"), TimeSpan.FromHours(+8)),
                 BetAmount =20.00m,
@@ -121,86 +116,91 @@ public class GameRecordCommandServiceUnitTest
                 AdditionalData: string.Empty)
         };
 
-        _ = fakeGameRoundsClient.GetGameRoundAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<Guid>()).Returns(gameRoundDataResponse);
+        var player = new PlayerInfo(
+            ResellerId: Guid.NewGuid(),
+            ResellerCode: "TGS",
+            LicenseeId: Guid.NewGuid(),
+            LicenseeCode: "TGS",
+            BrandId: Guid.NewGuid(),
+            BrandCode: "GPI",
+            PlayerCode: "test",
+            Username: "test",
+            DefaultWalletId: Guid.NewGuid(),
+            DefaultWalletCurrencyCode: "CNY");
+        _ = fakeUtensil
+            .GetPlayerAsync(
+                playerCode: Arg.Is("test"),
+                cancellation: Arg.Any<CancellationToken>())
+            .Returns(player);
 
-        _ = fakePlayer.GetAsync(Arg.Any<string>()).Returns(new PlayerModel(
-            Guid.NewGuid(),
-            "TGS",
-            Guid.NewGuid(),
-            "TGS",
-            Guid.NewGuid(),
-            "GPI",
-            "test",
-            "test",
-            Guid.NewGuid(),
-            "CNY",
-            PlayerStatus.Enabled));
+        _ = fakeGameRoundsClient
+            .GetGameRoundAsync(
+                gameProviderId: Arg.Is(gameProviderId),
+                externalRoundId: Arg.Is("10893708376"),
+                gameId: Arg.Is(gameId),
+                walletId: Arg.Is(player.DefaultWalletId))
+            .Returns(gameRoundDataResponse);
 
         var service = new GameRecordCommandService(
+            fakeOptions,
             fakeLogger,
             fakeDreamGameClient,
-            fakeGameProvider,
-            fakeGameRecordMessageHandler,
             fakeGameRoundsClient,
-            fakeGame,
-            fakePlayer,
-            fakeSystemClock);
+            fakeMessageSender,
+            fakeSystemClock,
+            fakeUtensil);
 
         await service.ExecuteAsync(new GameRecordCommand()).ConfigureAwait(false);
 
-        await fakeDreamGameClient.Received(1)
-             .MarkGameRecordListAsync(Arg.Any<List<string>>())
+        await fakeMessageSender.Received(1)
+             .PublishAsync(
+                subject: Arg.Is(fakeOptions.Value.MongoGlobPattern),
+                data: Arg.Any<ReadOnlyMemory<byte>>(),
+                cancellationToken: Arg.Any<CancellationToken>())
              .ConfigureAwait(false);
     }
 
     [TestMethod]
     public async Task Settlement_Date_Less_Than_3_Minutes_Will_Not_Be_Processed()
     {
+        var fakeOptions = Options.Create(new GameRecordInfoOptions
+        {
+            GameProviderCode = "DG",
+            GameExternalId = "dg",
+            MongoDefine = "gp.gamerecord.database",
+            MongoGlobPattern = "tgs.gp.gamerecord.database.round.dg"
+        });
         var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
         var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
-        var fakeGameProvider = Substitute.For<IGameProviderService>();
         var fakeGameRoundsClient = Substitute.For<IGameRoundsClient>();
-        var fakeGameRecordMessageHandler = Substitute.For<IGameRecordMessageHandler>();
-        var fakeGame = Substitute.For<IGameService>();
-        var fakePlayer = Substitute.For<IPlayerService>();
+        var fakeMessageSender = Substitute.For<IMessageSender>();
         var fakeSystemClock = Substitute.For<ISystemClock>();
+        var fakeUtensil = Substitute.For<IUtensil>();
 
         var gameProviderId = Guid.NewGuid();
-        _ = fakeGameProvider.GameProviderGetGameProviderIdAsync().Returns(gameProviderId);
+        _ = fakeUtensil
+            .GetGameProviderIdAsync(
+                cancellation: Arg.Any<CancellationToken>())
+            .Returns(gameProviderId);
 
-        var game = new GameModel(
-            GameId: 1,
-            GameProviderId: gameProviderId,
-            GameProviderCode: "DG",
-            GameExternalId: "dg",
-            Status: GameStatus.Active,
-            Description: null,
-            EndpointPath: null,
-            RuleUrl: null,
-            GameType: GameType.LiveDealer,
-            PlatformType: GamePlatformType.DesktopAndMobile,
-            SubGame: true,
-            AvailableToBrand: false,
-            HasTurnoverOnTieBet: false,
-            Html5: true,
-            AvailableCurrencies: null,
-            GameCode: "DG",
-            Name: "dg",
-            Localization: null,
-            SubGameProviderCode: "DG");
-
-        _ = fakeGame.GetGameAsync(gameProviderId, "dg").Returns(game);
+        var gameId = 1;
+        _ = fakeUtensil
+            .GetGameIdAsync(
+                Arg.Is(gameProviderId),
+                Arg.Is(fakeOptions.Value.GameExternalId),
+                Arg.Any<CancellationToken>())
+            .Returns(gameId);
 
         var gameRecords = new GameRecordModle[] {
             new GameRecordModle()
             {
-                GameProviderCode ="DG",
+                GameProviderCode =fakeOptions.Value.GameProviderCode,
                 GameProviderId = gameProviderId,
                 PlayerCode ="test",
                 Status= GameRecordRoundStatus.Closed,
                 ClientStatus = GameRecordRoundClientStatus.Loss,
                 ExternalRoundId ="10893708376",
-                ExternalGameId ="dg",
+                ExternalGameId =fakeOptions.Value.GameExternalId,
                 ExternalCreatedOn=new DateTimeOffset(DateTime.Parse("2022-04-21 18:30:39"), TimeSpan.FromHours(+8)),
                 ExternalClosedOn = new DateTimeOffset(DateTime.Parse("2022-04-21 18:31:06"), TimeSpan.FromHours(+8)),
                 BetAmount =20.00m,
@@ -220,20 +220,84 @@ public class GameRecordCommandServiceUnitTest
         _ = fakeDreamGameClient.GameRecordListAsync().Returns(gameRecordResponse);
 
         _ = fakeSystemClock.CurrentTime.Returns(new DateTimeOffset(DateTime.Parse("2022-04-21 18:33:00"), TimeSpan.FromHours(+8)));
+
+        var gameRoundDataResponse = new GameRoundDataResponse()
+        {
+            Success = true,
+            HttpStatusCode = System.Net.HttpStatusCode.OK,
+            Data = new GameRoundViewModel(
+                RoundId: Guid.NewGuid(),
+                ExternalRoundId: "10893708376",
+                GameProviderId: gameProviderId,
+                GameProviderCode: "DG",
+                PlayerCode: "test",
+                GameId: 1,
+                ExternalGameId: "dg",
+                CurrencyCode: "CNY",
+                Status: GameRoundStatus.Open,
+                GameProviderConfigurationId: Guid.NewGuid(),
+                WalletId: Guid.NewGuid(),
+                CreatedOn: DateTimeOffset.UtcNow,
+                ClosedOn: null,
+                UpdatedOn: DateTimeOffset.UtcNow,
+                BrandId: Guid.NewGuid(),
+                ExternalCreatedOn: DateTimeOffset.UtcNow,
+                ExternalClosedOn: null,
+                BetAmount: 20m,
+                ValidBetAmount: 20m,
+                SettleAmount: null,
+                Commission: null,
+                Turnover: null,
+                CompanyWinLoss: null,
+                TieBetAdjustment: null,
+                ClientStatus: GameRoundClientStatus.Open,
+                ReopenTurnoverAdjustment: null,
+                ReopenedOn: null,
+                EffectiveBettingPercentage: null,
+                AdditionalData: string.Empty)
+        };
+
+        var player = new PlayerInfo(
+            ResellerId: Guid.NewGuid(),
+            ResellerCode: "TGS",
+            LicenseeId: Guid.NewGuid(),
+            LicenseeCode: "TGS",
+            BrandId: Guid.NewGuid(),
+            BrandCode: "GPI",
+            PlayerCode: "test",
+            Username: "test",
+            DefaultWalletId: Guid.NewGuid(),
+            DefaultWalletCurrencyCode: "CNY");
+        _ = fakeUtensil
+            .GetPlayerAsync(
+                playerCode: Arg.Is("test"),
+                cancellation: Arg.Any<CancellationToken>())
+            .Returns(player);
+
+        _ = fakeGameRoundsClient
+            .GetGameRoundAsync(
+                gameProviderId: Arg.Is(gameProviderId),
+                externalRoundId: Arg.Is("10893708376"),
+                gameId: Arg.Is(gameId),
+                walletId: Arg.Is(player.DefaultWalletId))
+            .Returns(gameRoundDataResponse);
+
         var service = new GameRecordCommandService(
+            fakeOptions,
             fakeLogger,
             fakeDreamGameClient,
-            fakeGameProvider,
-            fakeGameRecordMessageHandler,
             fakeGameRoundsClient,
-            fakeGame,
-            fakePlayer,
-            fakeSystemClock);
+            fakeMessageSender,
+            fakeSystemClock,
+            fakeUtensil);
 
         await service.ExecuteAsync(new GameRecordCommand()).ConfigureAwait(false);
 
-        await fakeDreamGameClient.Received(0)
-             .MarkGameRecordListAsync(Array.Empty<string>())
+        await fakeMessageSender.Received(0)
+             .PublishAsync(
+                subject: Arg.Is(fakeOptions.Value.MongoGlobPattern),
+                data: Arg.Any<ReadOnlyMemory<byte>>(),
+                cancellationToken: Arg.Any<CancellationToken>())
              .ConfigureAwait(false);
     }
 }

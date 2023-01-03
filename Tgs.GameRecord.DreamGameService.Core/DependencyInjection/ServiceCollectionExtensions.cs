@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
+using Tgs.GameCommand.Client;
 using Tgs.GameProviders.Client;
-using Tgs.GameProviders.QueryServer.Client;
 using Tgs.GameRecord.DreamGameService.Core;
 using Tgs.GameRounds.Client;
 
@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddGameRecordCore(
         this IServiceCollection services,
         Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions,
-        Action<GameProvidersQueryServerClientOptions, IServiceProvider> gameProvidersQueryServerClientOptions,
+        Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
         Action<GameRoundsClientOptions, IServiceProvider> gameRoundsClientOptions
         )
         => services
@@ -19,11 +19,9 @@ public static class ServiceCollectionExtensions
                 Assembly.GetExecutingAssembly(),
                 ServiceLifetime.Transient)
             .AddGameProvidersClient(gameProvidersClientOptions)
-            .AddGameProvidersQueryServerClient(gameProvidersQueryServerClientOptions)
+            .AddGameCommandClient(gameCommandClientOptions)
             .AddGameRoundsClient(gameRoundsClientOptions)
-            .AddTransient<IGameRecordMessageHandler, GameRecordMessageHandler>()
-            .AddTransient<IGameProviderService, GameProviderService>()
-            .AddTransient<IGameService, GameService>()
-            .AddTransient<IPlayerService, PlayerService>()
-            .AddTransient<ISystemClock, SystemClock>();
+            .AddTransient<ISystemClock, SystemClock>()
+            .AddTransient<IUtensil, UtensilRepository>()
+            .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository, TimeSpan.FromHours(1)));
 }

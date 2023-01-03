@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using Tgs.GameProviders.Client;
 using Tgs.GameRounds.Client;
 using Tgs.GameRounds.Common;
 using Tgs.GameRounds.Common.MessageModels;
+using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
@@ -10,67 +13,67 @@ namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 {
     private readonly IDreamGameClient _dreamGameClient;
-    private readonly IGameProviderService _gameProviderService;
-    private readonly IGameRecordMessageHandler _gameRecordMessageHandler;
+    private readonly GameRecordInfoOptions _gameRecordInfo;
     private readonly IGameRoundsClient _gameRoundsClient;
-    private readonly IGameService _gameService;
     private readonly ILogger<GameRecordCommandService> _logger;
-    private readonly IPlayerService _playerService;
+    private readonly IMessageSender _messageSender;
     private readonly ISystemClock _systemClock;
+    private readonly IUtensil _utensil;
 
     public GameRecordCommandService(
+        IOptions<GameRecordInfoOptions> options,
         ILogger<GameRecordCommandService> logger,
         IDreamGameClient dreamGameClient,
-        IGameProviderService gameProviderService,
-        IGameRecordMessageHandler gameRecordMessageHandler,
         IGameRoundsClient gameRoundsClient,
-        IGameService gameService,
-        IPlayerService playerService,
-        ISystemClock systemClock)
+        IMessageSender messageSender,
+        ISystemClock systemClock,
+        IUtensil utensil)
     {
+        _gameRecordInfo = options.Value;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dreamGameClient = dreamGameClient ?? throw new ArgumentNullException(nameof(dreamGameClient));
-        _gameProviderService = gameProviderService ?? throw new ArgumentNullException(nameof(gameProviderService));
-        _gameRecordMessageHandler = gameRecordMessageHandler ?? throw new ArgumentNullException(nameof(gameRecordMessageHandler));
         _gameRoundsClient = gameRoundsClient ?? throw new ArgumentNullException(nameof(gameRoundsClient));
-        _gameService = gameService ?? throw new ArgumentNullException(nameof(gameService));
-        _playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+        _messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
         _systemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
+        _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
     }
 
     public async ValueTask ExecuteAsync(GameRecordCommand command, CancellationToken cancellationToken = default)
     {
-        var gameProviderId = await _gameProviderService.GameProviderGetGameProviderIdAsync().ConfigureAwait(false);
-        if (!gameProviderId.HasValue)
-        {
-            return;
-        }
+        var gameProviderId = await _utensil
+            .GetGameProviderIdAsync(
+                cancellation: cancellationToken)
+            .ConfigureAwait(false);
 
-        var game = await _gameService.GetGameAsync(gameProviderId.Value, "dg").ConfigureAwait(false);
-        if (game == null)
-        {
-            return;
-        }
+        var gameId = await _utensil
+            .GetGameIdAsync(
+                gameProviderId: gameProviderId,
+                gameExternalId: _gameRecordInfo.GameExternalId,
+                cancellation: cancellationToken)
+            .ConfigureAwait(false);
 
         var gameRecordResponse = await _dreamGameClient.GameRecordListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        if (gameRecordResponse == null || !gameRecordResponse.Success || gameRecordResponse.Datas == null)
+        if (gameRecordResponse == null || !gameRecordResponse.Success)
         {
             return;
         }
 
         var markGameRecords = new List<string>();
-        var gameRecords = gameRecordResponse.Datas.Where(x => !x.ExternalClosedOn.HasValue || x.ExternalClosedOn.Value.UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3));
+        var gameRecords = gameRecordResponse.Datas?
+            .Where(x => !x.ExternalClosedOn.HasValue || x.ExternalClosedOn.Value.UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3))
+            ?? Enumerable.Empty<GameRecordModle>();
 
         _logger.LogInformation("Information Received:{gameRecords}", gameRecords);
 
         foreach (var data in gameRecords)
         {
-            var player = await _playerService
-                .GetAsync(
+            var player = await _utensil
+                .GetPlayerAsync(
                     playerCode: data.PlayerCode,
-                    cancellationToken: cancellationToken)
+                    cancellation: cancellationToken)
                 .ConfigureAwait(false);
+
             if (player is null)
             {
                 continue;
@@ -78,11 +81,11 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 
             var roundModel = await _gameRoundsClient
                 .GetGameRoundAsync(
-                    gameProviderId.Value,
-                    data.ExternalRoundId,
-                    game.GameId,
-                    player.DefaultWalletId,
-                    cancellationToken)
+                    gameProviderId: gameProviderId,
+                    externalRoundId: data.ExternalRoundId,
+                    gameId: gameId,
+                    walletId: player.DefaultWalletId,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             if (!roundModel.Success)
@@ -93,32 +96,35 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
 
             if (roundModel.Data == null)
             {
-                var tempGame = await _gameService.GetGameAsync(gameProviderId.Value, data.ExternalGameId).ConfigureAwait(false);
-                if (tempGame == null)
-                {
-                    continue;
-                }
+                var tempGameId = await _utensil
+                    .GetGameIdAsync(
+                        gameProviderId: gameProviderId,
+                        gameExternalId: data.ExternalGameId,
+                        cancellation: cancellationToken)
+                    .ConfigureAwait(false);
+
                 roundModel = await _gameRoundsClient
                         .GetGameRoundAsync(
-                            gameProviderId.Value,
-                            data.ExternalRoundId,
-                            tempGame.GameId,
-                            player.DefaultWalletId,
-                            cancellationToken).ConfigureAwait(false);
+                            gameProviderId: gameProviderId,
+                            externalRoundId: data.ExternalRoundId,
+                            gameId: tempGameId,
+                            walletId: player.DefaultWalletId,
+                            cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
                 if (roundModel.Data == null)
                 {
                     continue;
                 }
             }
 
-            if (roundModel.Data.Status == GameRoundStatus.Open || data.Status == GameRecordRoundStatus.Closed)
+            if (data.Status == GameRecordRoundStatus.Closed)
             {
                 var messager = new GameRecordMessage(
                     ExternalRoundId: roundModel.Data.ExternalRoundId,
                     GameProviderId: roundModel.Data.GameProviderId,
                     GameProviderCode: data.GameProviderCode,
                     GameId: roundModel.Data.GameId,
-                    ExternalGameId: game.GameExternalId,
+                    ExternalGameId: _gameRecordInfo.GameExternalId,
                     PlayerCode: roundModel.Data.PlayerCode,
                     CurrencyCode: (player == null) ? string.Empty : player.DefaultWalletCurrencyCode,
                     WalletId: (player == null) ? Guid.Empty : player.DefaultWalletId,
@@ -136,10 +142,13 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
                     PlayerWinLoss: data.PlayerWinLoss.GetValueOrDefault(0),
                     AdditionalData: data.AdditionalData,
                     Success: true);
-
-                await _gameRecordMessageHandler.SendGameRoundAsync(messager).ConfigureAwait(false);
+                await _messageSender
+                    .PublishAsync(
+                        subject: $"tgs.gp.gamerecord.database.round.dg",
+                        data: messager.ToBson(),
+                        cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
-
             markGameRecords.Add(data.ExternalRoundId);
         }
         if (markGameRecords.Any())

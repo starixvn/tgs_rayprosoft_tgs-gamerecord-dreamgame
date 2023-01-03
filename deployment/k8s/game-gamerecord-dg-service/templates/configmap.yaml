@@ -6,10 +6,20 @@ metadata:
 data:
   appsettings.json: |
     {
+      "GameRecordInfo": {
+        "GameProviderCode": "DG",
+        "GameExternalId": "dg",
+        "MongoDefine": "gp.gamerecord.database",
+        "MongoGlobPattern": "tgs.gp.gamerecord.database.round.dg"
+      },
+      "NatsSetting": {
+        "Group": "gp.gamerecord.schedule",
+        "Subject": "gp.gamerecord.schedule.dg"
+      },
       "GameRecord": {
-        "GameProvidersServiceBaseUrl": "http://game-gameproviders",
-        "GameProvidersQueryServiceBaseUrl": "http://game-gameprovider-queryserver",
-        "GameRoundsServiceBaseUrl": "http://game-gamerounds"
+        "GameProvidersServiceBaseUrl": "http://game-gameproviders/",
+        "GameCommandClientBaseUrl": "http://game-gamecommand/",
+        "GameRoundsServiceBaseUrl": "http://game-gamerounds/"
       }
     }
   monitor.settings.json: |
