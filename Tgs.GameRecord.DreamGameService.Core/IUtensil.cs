@@ -4,20 +4,20 @@ namespace Tgs.GameRecord.DreamGameService.Core;
 
 public interface IUtensil
 {
-    ValueTask<Guid?> BrandGetGameProviderConfigurationIdAsync(
+    ValueTask<Guid?> GetBrandGameProviderConfigurationIdAsync(
         Guid brandId,
         Guid gameProviderId,
-        CancellationToken cancellation = default);
+        CancellationToken cancellationToken = default);
 
     ValueTask<int> GetGameIdAsync(
         Guid gameProviderId,
         string gameExternalId,
-        CancellationToken cancellation = default);
+        CancellationToken cancellationToken = default);
 
     ValueTask<Guid> GetGameProviderIdAsync(
-        CancellationToken cancellation = default);
+        CancellationToken cancellationToken = default);
 
     ValueTask<PlayerInfo?> GetPlayerAsync(
         string playerCode,
-        CancellationToken cancellation = default);
+        CancellationToken cancellationToken = default);
 }

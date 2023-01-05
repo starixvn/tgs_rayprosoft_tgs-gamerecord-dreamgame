@@ -1,10 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Net.Mime;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Prometheus;
 using Tgs.GameRecord.DreamGameService;
 using Tgs.GameRecord.DreamGameService.Core;
 using Tgs.MessageQueue.MongoDB.Configuration;
@@ -34,7 +35,11 @@ builder.Logging
 
 builder.Services
     .AddRouting(options => options.LowercaseUrls = true)
-    .AddControllers()
+    .AddControllers(options =>
+    {
+        options.Filters.Add(new ProducesAttribute(MediaTypeNames.Application.Json));
+        options.Filters.Add(new ConsumesAttribute(MediaTypeNames.Application.Json));
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -43,14 +48,18 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddMemoryCache();
-
 builder.Services
     .AddGameRecordCore((options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
         configuration.GetSection("GameRecordInfo").Bind(options);
-    }, (options, sp) =>
+    },
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        configuration.GetSection("MongoSetting").Bind(options);
+    },
+    (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
         options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersServiceBaseUrl");
@@ -66,7 +75,7 @@ builder.Services
         options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameRoundsServiceBaseUrl");
     });
 
-var gameRecordInfo = builder.Configuration.GetSection("GameRecordInfo").Get<GameRecordInfoOptions>();
+var mongoSetting = builder.Configuration.GetSection("MongoSetting").Get<MongoSettingOptions>();
 var natsSetting = builder.Configuration.GetSection("NatsSetting").Get<NatsSettingOptions>();
 
 builder.Services
@@ -75,7 +84,7 @@ builder.Services
     {
         _ = config
         .DefineMessageQueue(
-            gameRecordInfo.MongoDefine,
+            mongoSetting.ManagerName,
             sp => new MongoMessageQueueBuilderOptions
             {
                 MessageQueue = MongoMessageQueue.Default,
@@ -93,7 +102,7 @@ builder.Services
         .AddHandler<ScheduleMessageHandler>(natsSetting.Subject, natsSetting.Group);
     })
     .ClearAllExchanges()
-    .AddMongoGlobPatternExchange(gameRecordInfo.MongoGlobPattern, gameRecordInfo.MongoDefine, gameRecordInfo.MongoGlobPattern);
+    .AddMongoGlobPatternExchange(mongoSetting.GlobPattern, mongoSetting.ManagerName, mongoSetting.QueueName);
 
 builder.Services
      .AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
@@ -123,35 +132,31 @@ builder.Services
         options.Filter = httpContext =>
         {
             return !httpContext.Request.Path.HasValue
-                   || !httpContext.Request.Path.StartsWithSegments("/swagger")
-                   && !httpContext.Request.Path.StartsWithSegments("/healthz")
-                   && !httpContext.Request.Path.StartsWithSegments("/profiler/")
-                   && !httpContext.Request.Path.StartsWithSegments("/metrics")
+                || !httpContext.Request.Path.StartsWithSegments("/swagger")
+                && !httpContext.Request.Path.StartsWithSegments("/healthz")
+                && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+                && !httpContext.Request.Path.StartsWithSegments("/hangfire")
+                && !httpContext.Request.Path.StartsWithSegments("/metrics")
                    && !new[] { "html", "ico", "png", "jpg" }.Any(
                        ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
         };
     });
 
 builder.Services
-    .AddInterceptionService()
-    .AddServiceUtiltiyInterceptors();
-
-builder.Services
-    .AddHealthChecks()
-    .ForwardToPrometheus();
+    .AddHealthChecks();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+_ = app.UseSwagger();
+_ = app.UseSwaggerUI();
 
-app.MapControllers();
+_ = app.UseAuthorization();
 
-app.MapHealthChecks("/healthz");
-
-app.MapMetrics();
+_ = app.MapControllers();
 
 app.MapProfileViewer();
+
+app.MapHealthChecks("/healthz");
 
 _ = app.UseGameRecordRegister();
 

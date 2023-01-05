@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.GameCommand.Common;
 using Tgs.GameProviders.Client;
@@ -26,8 +25,12 @@ public class GameRecordCommandServiceUnitTest
         {
             GameProviderCode = "DG",
             GameExternalId = "dg",
-            MongoDefine = "gp.gamerecord.database",
-            MongoGlobPattern = "tgs.gp.gamerecord.database.round.dg"
+        });
+        var fakeMongoSettingOptions = Options.Create(new MongoSettingOptions
+        {
+            ManagerName = "gp.gamerecord.database",
+            QueueName = "tgs.gp.gamerecord.database.round.dg",
+            GlobPattern = "tgs.gp.gamerecord.database.round.dg"
         });
         var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
         var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
@@ -39,7 +42,7 @@ public class GameRecordCommandServiceUnitTest
         var gameProviderId = Guid.NewGuid();
         _ = fakeUtensil
             .GetGameProviderIdAsync(
-                cancellation: Arg.Any<CancellationToken>())
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(gameProviderId);
 
         var gameId = 1;
@@ -130,7 +133,7 @@ public class GameRecordCommandServiceUnitTest
         _ = fakeUtensil
             .GetPlayerAsync(
                 playerCode: Arg.Is("test"),
-                cancellation: Arg.Any<CancellationToken>())
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(player);
 
         _ = fakeGameRoundsClient
@@ -143,6 +146,7 @@ public class GameRecordCommandServiceUnitTest
 
         var service = new GameRecordCommandService(
             fakeOptions,
+            fakeMongoSettingOptions,
             fakeLogger,
             fakeDreamGameClient,
             fakeGameRoundsClient,
@@ -154,7 +158,7 @@ public class GameRecordCommandServiceUnitTest
 
         await fakeMessageSender.Received(1)
              .PublishAsync(
-                subject: Arg.Is(fakeOptions.Value.MongoGlobPattern),
+                subject: Arg.Is(fakeMongoSettingOptions.Value.GlobPattern),
                 data: Arg.Any<ReadOnlyMemory<byte>>(),
                 cancellationToken: Arg.Any<CancellationToken>())
              .ConfigureAwait(false);
@@ -167,8 +171,12 @@ public class GameRecordCommandServiceUnitTest
         {
             GameProviderCode = "DG",
             GameExternalId = "dg",
-            MongoDefine = "gp.gamerecord.database",
-            MongoGlobPattern = "tgs.gp.gamerecord.database.round.dg"
+        });
+        var fakeMongoSettingOptions = Options.Create(new MongoSettingOptions
+        {
+            ManagerName = "gp.gamerecord.database",
+            QueueName = "tgs.gp.gamerecord.database.round.dg",
+            GlobPattern = "tgs.gp.gamerecord.database.round.dg"
         });
         var fakeLogger = NullLogger<GameRecordCommandService>.Instance;
         var fakeDreamGameClient = Substitute.For<IDreamGameClient>();
@@ -180,7 +188,7 @@ public class GameRecordCommandServiceUnitTest
         var gameProviderId = Guid.NewGuid();
         _ = fakeUtensil
             .GetGameProviderIdAsync(
-                cancellation: Arg.Any<CancellationToken>())
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(gameProviderId);
 
         var gameId = 1;
@@ -271,7 +279,7 @@ public class GameRecordCommandServiceUnitTest
         _ = fakeUtensil
             .GetPlayerAsync(
                 playerCode: Arg.Is("test"),
-                cancellation: Arg.Any<CancellationToken>())
+                cancellationToken: Arg.Any<CancellationToken>())
             .Returns(player);
 
         _ = fakeGameRoundsClient
@@ -284,6 +292,7 @@ public class GameRecordCommandServiceUnitTest
 
         var service = new GameRecordCommandService(
             fakeOptions,
+            fakeMongoSettingOptions,
             fakeLogger,
             fakeDreamGameClient,
             fakeGameRoundsClient,
@@ -295,7 +304,7 @@ public class GameRecordCommandServiceUnitTest
 
         await fakeMessageSender.Received(0)
              .PublishAsync(
-                subject: Arg.Is(fakeOptions.Value.MongoGlobPattern),
+                subject: Arg.Is(fakeMongoSettingOptions.Value.GlobPattern),
                 data: Arg.Any<ReadOnlyMemory<byte>>(),
                 cancellationToken: Arg.Any<CancellationToken>())
              .ConfigureAwait(false);

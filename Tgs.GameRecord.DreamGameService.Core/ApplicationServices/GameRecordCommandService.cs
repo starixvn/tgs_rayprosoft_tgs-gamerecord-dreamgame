@@ -17,11 +17,13 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
     private readonly IGameRoundsClient _gameRoundsClient;
     private readonly ILogger<GameRecordCommandService> _logger;
     private readonly IMessageSender _messageSender;
+    private readonly MongoSettingOptions _mongoSetting;
     private readonly ISystemClock _systemClock;
     private readonly IUtensil _utensil;
 
     public GameRecordCommandService(
-        IOptions<GameRecordInfoOptions> options,
+        IOptions<GameRecordInfoOptions> gameRecordInfoOptions,
+        IOptions<MongoSettingOptions> mongoSettingOptions,
         ILogger<GameRecordCommandService> logger,
         IDreamGameClient dreamGameClient,
         IGameRoundsClient gameRoundsClient,
@@ -29,7 +31,8 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
         ISystemClock systemClock,
         IUtensil utensil)
     {
-        _gameRecordInfo = options.Value;
+        _gameRecordInfo = gameRecordInfoOptions.Value;
+        _mongoSetting = mongoSettingOptions.Value;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dreamGameClient = dreamGameClient ?? throw new ArgumentNullException(nameof(dreamGameClient));
         _gameRoundsClient = gameRoundsClient ?? throw new ArgumentNullException(nameof(gameRoundsClient));
@@ -42,14 +45,14 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
     {
         var gameProviderId = await _utensil
             .GetGameProviderIdAsync(
-                cancellation: cancellationToken)
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         var gameId = await _utensil
             .GetGameIdAsync(
                 gameProviderId: gameProviderId,
                 gameExternalId: _gameRecordInfo.GameExternalId,
-                cancellation: cancellationToken)
+                cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         var gameRecordResponse = await _dreamGameClient.GameRecordListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -71,7 +74,7 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
             var player = await _utensil
                 .GetPlayerAsync(
                     playerCode: data.PlayerCode,
-                    cancellation: cancellationToken)
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             if (player is null)
@@ -100,7 +103,7 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
                     .GetGameIdAsync(
                         gameProviderId: gameProviderId,
                         gameExternalId: data.ExternalGameId,
-                        cancellation: cancellationToken)
+                        cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
 
                 roundModel = await _gameRoundsClient
@@ -144,7 +147,7 @@ internal class GameRecordCommandService : ICommandService<GameRecordCommand>
                     Success: true);
                 await _messageSender
                     .PublishAsync(
-                        subject: _gameRecordInfo.MongoGlobPattern,
+                        subject: _mongoSetting.GlobPattern,
                         data: messager.ToBson(),
                         cancellationToken: cancellationToken)
                     .ConfigureAwait(false);

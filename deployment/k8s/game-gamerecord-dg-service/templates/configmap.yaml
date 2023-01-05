@@ -8,13 +8,7 @@ data:
     {
       "GameRecordInfo": {
         "GameProviderCode": "DG",
-        "GameExternalId": "dg",
-        "MongoDefine": "gp.gamerecord.database",
-        "MongoGlobPattern": "tgs.gp.gamerecord.database.round.dg"
-      },
-      "NatsSetting": {
-        "Group": "gp.gamerecord.schedule",
-        "Subject": "gp.gamerecord.schedule.dg"
+        "GameExternalId": "dg"
       },
       "GameRecord": {
         "GameProvidersServiceBaseUrl": "http://game-gameproviders/",

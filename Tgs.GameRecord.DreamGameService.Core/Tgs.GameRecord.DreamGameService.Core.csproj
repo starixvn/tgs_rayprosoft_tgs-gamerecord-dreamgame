@@ -8,9 +8,8 @@
 	
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0" />
-		<PackageReference Include="Scrutor" Version="4.2.0" />
-		<PackageReference Include="Tgs.GameCommand.Client" Version="0.0.2" />
-		<PackageReference Include="Tgs.GameProviders.Client" Version="0.0.49" />
+		<PackageReference Include="Tgs.GameCommand.Client" Version="0.0.3" />
+		<PackageReference Include="Tgs.GameProviders.Client" Version="0.0.50" />
 		<PackageReference Include="Tgs.GameRecordSchedules.Client" Version="0.0.7" />
 		<PackageReference Include="Tgs.GameRounds.Client" Version="0.0.32" />
 		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.7" />

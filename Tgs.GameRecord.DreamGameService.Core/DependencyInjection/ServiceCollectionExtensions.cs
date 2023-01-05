@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddGameRecordCore(
         this IServiceCollection services,
         Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
+        Action<MongoSettingOptions, IServiceProvider> mongoSettingOptions,
         Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions,
         Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
         Action<GameRoundsClientOptions, IServiceProvider> gameRoundsClientOptions
@@ -19,13 +20,15 @@ public static class ServiceCollectionExtensions
             .AddOptions<GameRecordInfoOptions>()
             .Configure(gameRecordInfoOptions)
             .Services
-            .RegisterAllServiceUtilityTypes(
+            .AddOptions<MongoSettingOptions>()
+            .Configure(mongoSettingOptions)
+            .Services.RegisterAllServiceUtilityTypes(
                 Assembly.GetExecutingAssembly(),
                 ServiceLifetime.Transient)
+            .AddMemoryCache()
             .AddGameProvidersClient(gameProvidersClientOptions)
             .AddGameCommandClient(gameCommandClientOptions)
             .AddGameRoundsClient(gameRoundsClientOptions)
             .AddTransient<ISystemClock, SystemClock>()
-            .AddTransient<IUtensil, UtensilRepository>()
-            .Decorate<IUtensil>((innerRepository, sp) => ActivatorUtilities.CreateInstance<UtensilMemoryCacheRepository>(sp, innerRepository, TimeSpan.FromHours(1)));
+            .AddTransient<IUtensil>(sp => ActivatorUtilities.CreateInstance<UtensilRepository>(sp, TimeSpan.FromHours(1)));
 }
