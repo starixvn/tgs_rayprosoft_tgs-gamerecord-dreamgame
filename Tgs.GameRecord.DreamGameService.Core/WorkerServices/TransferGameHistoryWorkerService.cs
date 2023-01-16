@@ -6,23 +6,23 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.Core.WorkerServices;
 
-internal class GameHistoryWorkerService : ICommandService<GameHistoryWorkerCommand>
+internal class TransferGameHistoryWorkerService : ICommandService<TransferGameHistoryWorkerCommand>
 {
     private readonly IGameInterfaceDreamGamingClient _client;
-    private readonly ILogger<GameHistoryWorkerService> _logger;
-    private readonly ICommandService<DGTFGamePullRecordSettledCommand> _settledService;
+    private readonly ILogger<TransferGameHistoryWorkerService> _logger;
+    private readonly ICommandService<TransferGamePullRecordCommand> _settledService;
 
-    public GameHistoryWorkerService(
+    public TransferGameHistoryWorkerService(
+        ILogger<TransferGameHistoryWorkerService> logger,
         IGameInterfaceDreamGamingClient client,
-        ILogger<GameHistoryWorkerService> logger,
-        ICommandService<DGTFGamePullRecordSettledCommand> settledService)
+        ICommandService<TransferGamePullRecordCommand> settledService)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _settledService = settledService ?? throw new ArgumentNullException(nameof(settledService));
     }
 
-    public async ValueTask ExecuteAsync(GameHistoryWorkerCommand command, CancellationToken cancellationToken = default)
+    public async ValueTask ExecuteAsync(TransferGameHistoryWorkerCommand command, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -39,9 +39,14 @@ internal class GameHistoryWorkerService : ICommandService<GameHistoryWorkerComma
                 DateTime.UtcNow.ToString("O"),
                 JsonSerializer.Serialize(gameHistorySettleds));
 
+            if (!gameHistorySettleds.Any())
+            {
+                return;
+            }
+
             await _settledService
                 .ExecuteAsync(
-                    command: new DGTFGamePullRecordSettledCommand(
+                    command: new TransferGamePullRecordCommand(
                         Records: gameHistorySettleds),
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);

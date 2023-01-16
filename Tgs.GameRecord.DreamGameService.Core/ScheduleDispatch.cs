@@ -9,10 +9,10 @@ internal class ScheduleDispatch : IScheduleDispatch
 {
     private readonly IDatabase _database;
     private readonly TimeSpan _expiry;
-    private readonly DGTFGameRecordInfoOptions _gameRecordInfoOptions;
+    private readonly GameRecordInfoOptions _gameRecordInfoOptions;
 
     public ScheduleDispatch(
-        IOptions<DGTFGameRecordInfoOptions> options,
+        IOptions<GameRecordInfoOptions> options,
         IDatabase database)
     {
         _gameRecordInfoOptions = options.Value;
@@ -23,7 +23,7 @@ internal class ScheduleDispatch : IScheduleDispatch
     public Task<bool> ExistAsync(string key)
         => _database.KeyExistsAsync(key: key);
 
-    public Task<bool> LockingAsync(string key, DGTFScheduleDispatchCommand command)
+    public Task<bool> LockingAsync(string key, TransferScheduleDispatchCommand command)
         => _database.StringSetAsync(key: key, value: JsonSerializer.Serialize(command), expiry: _expiry, when: When.NotExists);
 
     public async Task UnlockAsync(string key)

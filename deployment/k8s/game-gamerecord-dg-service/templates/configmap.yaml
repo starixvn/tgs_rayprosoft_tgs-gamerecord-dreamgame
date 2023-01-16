@@ -8,19 +8,16 @@ data:
     {
       "GameRecordInfo": {
         "GameProviderCode": "DG",
-        "GameExternalId": "dg"
+        "GameProviderConfig": "DGConfiguration",
+        "GameProviderCodeTransfer": "DGTF",
+        "GameProviderConfigTransfer": "DGTFConfiguration",
+        "GameExternalId": "dg",
+        "LockMinute": 10
       },
       "GameRecord": {
         "GameProvidersServiceBaseUrl": "http://game-gameproviders/",
         "GameCommandClientBaseUrl": "http://game-gamecommand/",
         "GameRoundsServiceBaseUrl": "http://game-gamerounds/"
-      },
-      "DGTFGameRecordInfo": {
-        "GameProviderCode": "DGTF",
-        "IntervalMinutes": 5,
-        "IntervalMinutesMax": 1440,
-        "IntervalMinutesMinimum": 2,
-        "LockMinute": 4
       }
     }
   monitor.settings.json: |

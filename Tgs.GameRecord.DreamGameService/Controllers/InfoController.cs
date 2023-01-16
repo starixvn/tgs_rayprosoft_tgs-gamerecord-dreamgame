@@ -28,20 +28,5 @@ namespace Tgs.GameRecord.DreamGameService.Controllers
                 natsSetting
             };
         }
-
-        [HttpGet("TF")]
-        public object GetTF()
-        {
-            var gameRecordInfo = _configuration.GetSection("DGTFGameRecordInfo").Get<DGTFGameRecordInfoOptions>();
-            var mongoSetting = _configuration.GetSection("DGTFMongoSetting").Get<DGTFMongoSettingOptions>();
-            var natsSetting = _configuration.GetSection("DGTFNatsSetting").Get<DGTFNatsSettingOptions>();
-
-            return new
-            {
-                gameRecordInfo,
-                mongoSetting,
-                natsSetting
-            };
-        }
     }
 }

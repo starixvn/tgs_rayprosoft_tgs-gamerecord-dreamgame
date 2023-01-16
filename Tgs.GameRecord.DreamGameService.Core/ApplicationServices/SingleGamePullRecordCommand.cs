@@ -2,4 +2,4 @@
 
 namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 
-public record DGTFGamePullRecordSettledCommand(IEnumerable<GameHistorySettled> Records);
+public record SingleGamePullRecordCommand(IEnumerable<GameHistorySettled> Records);

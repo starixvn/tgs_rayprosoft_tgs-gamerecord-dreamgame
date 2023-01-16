@@ -6,14 +6,14 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService;
 
-internal class DGTFScheduleMessageHandler : IMessageHandler
+internal class TransferScheduleMessageHandler : IMessageHandler
 {
-    private readonly ILogger<DGTFScheduleMessageHandler> _logger;
-    private readonly ICommandService<DGTFScheduleDispatchCommand> _service;
+    private readonly ILogger<TransferScheduleMessageHandler> _logger;
+    private readonly ICommandService<TransferScheduleDispatchCommand> _service;
 
-    public DGTFScheduleMessageHandler(
-        ILogger<DGTFScheduleMessageHandler> logger,
-        ICommandService<DGTFScheduleDispatchCommand> service)
+    public TransferScheduleMessageHandler(
+        ILogger<TransferScheduleMessageHandler> logger,
+        ICommandService<TransferScheduleDispatchCommand> service)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _service = service ?? throw new ArgumentNullException(nameof(service));
@@ -22,7 +22,7 @@ internal class DGTFScheduleMessageHandler : IMessageHandler
     public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {
         var json = Encoding.UTF8.GetString(data.Span);
-        var message = JsonSerializer.Deserialize<DGTFScheduleMessageModel>(json);
+        var message = JsonSerializer.Deserialize<TransferScheduleMessageModel>(json);
 
         if (message == null)
         {
@@ -32,7 +32,7 @@ internal class DGTFScheduleMessageHandler : IMessageHandler
 
         _logger.LogInformation("Information Received:{message}", message);
 
-        var command = new DGTFScheduleDispatchCommand(
+        var command = new TransferScheduleDispatchCommand(
             ApiUrl: message.ApiUrl,
             ApiKey: message.ApiKey,
             AgentName: message.AgentName);

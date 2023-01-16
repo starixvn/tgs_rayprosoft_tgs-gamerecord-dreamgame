@@ -3,5 +3,6 @@
 public record NatsSettingOptions
 {
     public string Group { get; set; } = default!;
-    public string Subject { get; set; } = default!;
+    public string SingleSubject { get; set; } = default!;
+    public string TransferSubject { get; set; } = default!;
 }

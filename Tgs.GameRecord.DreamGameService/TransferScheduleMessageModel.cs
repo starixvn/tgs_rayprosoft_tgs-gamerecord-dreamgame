@@ -1,6 +1,6 @@
 ﻿namespace Tgs.GameRecord.DreamGameService;
 
-public record DGTFScheduleMessageModel(
+public record TransferScheduleMessageModel(
     Uri ApiUrl,
     string ApiKey,
     string AgentName);

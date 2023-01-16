@@ -11,9 +11,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddGameRecordCore(
         this IServiceCollection services,
         Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
-        Action<DGTFGameRecordInfoOptions, IServiceProvider> dgtfGameRecordInfoOptions,
         Action<MongoSettingOptions, IServiceProvider> mongoSettingOptions,
-        Action<DGTFMongoSettingOptions, IServiceProvider> dgtfMongoSettingOptions,
         Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions,
         Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
         Action<GameRoundsClientOptions, IServiceProvider> gameRoundsClientOptions
@@ -22,15 +20,10 @@ public static class ServiceCollectionExtensions
             .AddOptions<GameRecordInfoOptions>()
             .Configure(gameRecordInfoOptions)
             .Services
-            .AddOptions<DGTFGameRecordInfoOptions>()
-            .Configure(dgtfGameRecordInfoOptions)
-            .Services
             .AddOptions<MongoSettingOptions>()
             .Configure(mongoSettingOptions)
             .Services
-            .AddOptions<DGTFMongoSettingOptions>()
-            .Configure(dgtfMongoSettingOptions)
-            .Services.RegisterAllServiceUtilityTypes(
+            .RegisterAllServiceUtilityTypes(
                 Assembly.GetExecutingAssembly(),
                 ServiceLifetime.Transient)
             .AddMemoryCache()
@@ -38,5 +31,6 @@ public static class ServiceCollectionExtensions
             .AddGameCommandClient(gameCommandClientOptions)
             .AddGameRoundsClient(gameRoundsClientOptions)
             .AddTransient<ISystemClock, SystemClock>()
-            .AddTransient<IUtensil>(sp => ActivatorUtilities.CreateInstance<UtensilRepository>(sp, TimeSpan.FromHours(1)));
+            .AddTransient<IUtensil>(sp => ActivatorUtilities.CreateInstance<UtensilRepository>(sp, TimeSpan.FromHours(1)))
+         .AddTransient<ITransferUtensil>(sp => ActivatorUtilities.CreateInstance<TransferUtensilRepository>(sp, TimeSpan.FromHours(1)));
 }

@@ -8,20 +8,20 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 
-internal class DGTFGamePullRecordSettledCommandService : ICommandService<DGTFGamePullRecordSettledCommand>
+internal class TransferGamePullRecordCommandService : ICommandService<TransferGamePullRecordCommand>
 {
-    private readonly DGTFGameRecordInfoOptions _gameRecordInfo;
-    private readonly ILogger<DGTFGamePullRecordSettledCommandService> _logger;
+    private readonly GameRecordInfoOptions _gameRecordInfo;
+    private readonly ILogger<TransferGamePullRecordCommandService> _logger;
     private readonly IMessageSender _messageSender;
-    private readonly DGTFMongoSettingOptions _mongoSetting;
-    private readonly IUtensil _utensil;
+    private readonly MongoSettingOptions _mongoSetting;
+    private readonly ITransferUtensil _utensil;
 
-    public DGTFGamePullRecordSettledCommandService(
-        ILogger<DGTFGamePullRecordSettledCommandService> logger,
-        IOptions<DGTFGameRecordInfoOptions> gameRecordInfoOptions,
-        IOptions<DGTFMongoSettingOptions> mongoSettingOptions,
+    public TransferGamePullRecordCommandService(
+        ILogger<TransferGamePullRecordCommandService> logger,
+        IOptions<GameRecordInfoOptions> gameRecordInfoOptions,
+        IOptions<MongoSettingOptions> mongoSettingOptions,
         IMessageSender messageSender,
-        IUtensil utensil)
+        ITransferUtensil utensil)
     {
         _gameRecordInfo = gameRecordInfoOptions.Value;
         _mongoSetting = mongoSettingOptions.Value;
@@ -30,10 +30,10 @@ internal class DGTFGamePullRecordSettledCommandService : ICommandService<DGTFGam
         _utensil = utensil ?? throw new ArgumentNullException(nameof(utensil));
     }
 
-    public async ValueTask ExecuteAsync(DGTFGamePullRecordSettledCommand command, CancellationToken cancellationToken = default)
+    public async ValueTask ExecuteAsync(TransferGamePullRecordCommand command, CancellationToken cancellationToken = default)
     {
         var gameProviderId = await _utensil
-            .GetDGTFGameProviderIdAsync(
+            .GetGameProviderIdAsync(
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
@@ -41,7 +41,7 @@ internal class DGTFGamePullRecordSettledCommandService : ICommandService<DGTFGam
         {
             bool success = true;
             var playerModel = await _utensil
-                .GetDGTFPlayerAsync(
+                .GetPlayerAsync(
                     playerCode: record.PlayerCode,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
@@ -55,7 +55,7 @@ internal class DGTFGamePullRecordSettledCommandService : ICommandService<DGTFGam
             if (playerModel != null)
             {
                 gameProviderConfigurationId = await _utensil
-                    .GetDGTFBrandGameProviderConfigurationIdAsync(
+                    .GetBrandGameProviderConfigurationIdAsync(
                         brandId: playerModel.BrandId,
                         gameProviderId: gameProviderId,
                         cancellationToken: cancellationToken)
@@ -67,7 +67,7 @@ internal class DGTFGamePullRecordSettledCommandService : ICommandService<DGTFGam
             }
 
             var gameId = await _utensil
-                .GetDGTFGameIdAsync(
+                .GetGameIdAsync(
                     gameProviderId: gameProviderId,
                     gameExternalId: record.ExternalGameId,
                     cancellationToken: cancellationToken)

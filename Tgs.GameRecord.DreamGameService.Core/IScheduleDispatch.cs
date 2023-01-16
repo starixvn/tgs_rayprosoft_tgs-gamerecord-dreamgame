@@ -6,7 +6,7 @@ public interface IScheduleDispatch
 {
     public Task<bool> ExistAsync(string key);
 
-    public Task<bool> LockingAsync(string key, DGTFScheduleDispatchCommand command);
+    public Task<bool> LockingAsync(string key, TransferScheduleDispatchCommand command);
 
     public Task UnlockAsync(string key);
 }

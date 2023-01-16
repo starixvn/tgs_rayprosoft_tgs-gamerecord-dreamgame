@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
-using Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
+using Tgs.GameRecord.DreamGameService.Core.DispatchServices;
 using Tgs.MessageQueue;
 using Tgs.ServiceUtility;
 
@@ -8,12 +8,12 @@ namespace Tgs.GameRecord.DreamGameService;
 
 internal class ScheduleMessageHandler : IMessageHandler
 {
-    private readonly ICommandService<GameRecordCommand> _commandService;
+    private readonly ICommandService<SingleScheduleDispatchCommand> _commandService;
     private readonly ILogger<ScheduleMessageHandler> _logger;
 
     public ScheduleMessageHandler(
         ILogger<ScheduleMessageHandler> logger,
-        ICommandService<GameRecordCommand> commandService)
+        ICommandService<SingleScheduleDispatchCommand> commandService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
