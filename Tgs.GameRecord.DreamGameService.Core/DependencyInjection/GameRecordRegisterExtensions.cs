@@ -11,6 +11,7 @@ public static class GameRecordRegisterExtensions
         using (var scope = app.Services.CreateScope())
         {
             var gameRecordInfo = app.Configuration.GetSection("GameRecordInfo").Get<GameRecordInfoOptions>();
+            var dgtfGameRecordInfo = app.Configuration.GetSection("DGTFGameRecordInfo").Get<DGTFGameRecordInfoOptions>();
             var utensil = scope.ServiceProvider.GetRequiredService<IUtensil>();
             var gameProviderId = await utensil.GetGameProviderIdAsync().ConfigureAwait(false);
             _ = await utensil

@@ -11,7 +11,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddGameRecordCore(
         this IServiceCollection services,
         Action<GameRecordInfoOptions, IServiceProvider> gameRecordInfoOptions,
+        Action<DGTFGameRecordInfoOptions, IServiceProvider> dgtfGameRecordInfoOptions,
         Action<MongoSettingOptions, IServiceProvider> mongoSettingOptions,
+        Action<DGTFMongoSettingOptions, IServiceProvider> dgtfMongoSettingOptions,
         Action<GameProvidersClientOptions, IServiceProvider> gameProvidersClientOptions,
         Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
         Action<GameRoundsClientOptions, IServiceProvider> gameRoundsClientOptions
@@ -20,8 +22,14 @@ public static class ServiceCollectionExtensions
             .AddOptions<GameRecordInfoOptions>()
             .Configure(gameRecordInfoOptions)
             .Services
+            .AddOptions<DGTFGameRecordInfoOptions>()
+            .Configure(dgtfGameRecordInfoOptions)
+            .Services
             .AddOptions<MongoSettingOptions>()
             .Configure(mongoSettingOptions)
+            .Services
+            .AddOptions<DGTFMongoSettingOptions>()
+            .Configure(dgtfMongoSettingOptions)
             .Services.RegisterAllServiceUtilityTypes(
                 Assembly.GetExecutingAssembly(),
                 ServiceLifetime.Transient)

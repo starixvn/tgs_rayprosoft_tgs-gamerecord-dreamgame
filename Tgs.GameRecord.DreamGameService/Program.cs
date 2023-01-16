@@ -53,11 +53,20 @@ builder.Services
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
         configuration.GetSection("GameRecordInfo").Bind(options);
+    }, (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        configuration.GetSection("DGTFGameRecordInfo").Bind(options);
     },
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
         configuration.GetSection("MongoSetting").Bind(options);
+    },
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        configuration.GetSection("DGTFMongoSetting").Bind(options);
     },
     (options, sp) =>
     {
@@ -78,6 +87,9 @@ builder.Services
 var mongoSetting = builder.Configuration.GetSection("MongoSetting").Get<MongoSettingOptions>();
 var natsSetting = builder.Configuration.GetSection("NatsSetting").Get<NatsSettingOptions>();
 
+var dgtfMongoSetting = builder.Configuration.GetSection("DGTMongoSetting").Get<DGTFMongoSettingOptions>();
+var dgtfNatsSetting = builder.Configuration.GetSection("DGTFNatsSetting").Get<DGTFNatsSettingOptions>();
+
 builder.Services
     .AddMessageQueue()
     .AddMongoMessageQueue(config =>
@@ -85,6 +97,15 @@ builder.Services
         _ = config
         .DefineMessageQueue(
             mongoSetting.ManagerName,
+            sp => new MongoMessageQueueBuilderOptions
+            {
+                MessageQueue = MongoMessageQueue.Default,
+                ConnectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("MongoMessaging")!
+            });
+
+        _ = config
+        .DefineMessageQueue(
+            dgtfMongoSetting.ManagerName,
             sp => new MongoMessageQueueBuilderOptions
             {
                 MessageQueue = MongoMessageQueue.Default,
@@ -99,10 +120,12 @@ builder.Services
             var configuration = sp.GetRequiredService<IConfiguration>();
             options.Url = configuration.GetConnectionString("Nats")!;
         })
-        .AddHandler<ScheduleMessageHandler>(natsSetting.Subject, natsSetting.Group);
+        .AddHandler<ScheduleMessageHandler>(natsSetting.Subject, natsSetting.Group)
+        .AddHandler<DGTFScheduleMessageHandler>(dgtfNatsSetting.Subject, dgtfNatsSetting.Group);
     })
     .ClearAllExchanges()
-    .AddMongoGlobPatternExchange(mongoSetting.GlobPattern, mongoSetting.ManagerName, mongoSetting.QueueName);
+    .AddMongoGlobPatternExchange(mongoSetting.GlobPattern, mongoSetting.ManagerName, mongoSetting.QueueName)
+    .AddMongoGlobPatternExchange(dgtfMongoSetting.GlobPattern, dgtfMongoSetting.ManagerName, dgtfMongoSetting.QueueName);
 
 builder.Services
      .AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
