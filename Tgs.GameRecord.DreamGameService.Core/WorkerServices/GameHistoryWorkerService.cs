@@ -10,12 +10,12 @@ internal class GameHistoryWorkerService : ICommandService<GameHistoryWorkerComma
 {
     private readonly IGameInterfaceDreamGamingClient _client;
     private readonly ILogger<GameHistoryWorkerService> _logger;
-    private readonly ICommandService<GamePullRecordSettledCommand> _settledService;
+    private readonly ICommandService<DGTFGamePullRecordSettledCommand> _settledService;
 
     public GameHistoryWorkerService(
         IGameInterfaceDreamGamingClient client,
         ILogger<GameHistoryWorkerService> logger,
-        ICommandService<GamePullRecordSettledCommand> settledService)
+        ICommandService<DGTFGamePullRecordSettledCommand> settledService)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,7 +41,7 @@ internal class GameHistoryWorkerService : ICommandService<GameHistoryWorkerComma
 
             await _settledService
                 .ExecuteAsync(
-                    command: new GamePullRecordSettledCommand(
+                    command: new DGTFGamePullRecordSettledCommand(
                         Records: gameHistorySettleds),
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);

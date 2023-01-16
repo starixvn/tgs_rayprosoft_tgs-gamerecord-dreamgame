@@ -23,7 +23,7 @@ internal class ScheduleDispatch : IScheduleDispatch
     public Task<bool> ExistAsync(string key)
         => _database.KeyExistsAsync(key: key);
 
-    public Task<bool> LockingAsync(string key, ScheduleDispatchCommand command)
+    public Task<bool> LockingAsync(string key, DGTFScheduleDispatchCommand command)
         => _database.StringSetAsync(key: key, value: JsonSerializer.Serialize(command), expiry: _expiry, when: When.NotExists);
 
     public async Task UnlockAsync(string key)
