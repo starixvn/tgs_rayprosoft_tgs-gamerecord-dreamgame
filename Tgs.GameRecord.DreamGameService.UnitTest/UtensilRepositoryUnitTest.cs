@@ -19,7 +19,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "DG",
-            GameExternalId = "dg"
+            GameProviderConfig = "DGConfiguration",
+            GameProviderCodeTransfer = "DGTF",
+            GameProviderConfigTransfer = "DGTFConfiguration",
+            GameExternalId = "dg",
+            LockMinute = 10
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
@@ -73,7 +77,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "DG",
-            GameExternalId = "dg"
+            GameProviderConfig = "DGConfiguration",
+            GameProviderCodeTransfer = "DGTF",
+            GameProviderConfigTransfer = "DGTFConfiguration",
+            GameExternalId = "dg",
+            LockMinute = 10
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
@@ -126,7 +134,11 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "DG",
-            GameExternalId = "dg"
+            GameProviderConfig = "DGConfiguration",
+            GameProviderCodeTransfer = "DGTF",
+            GameProviderConfigTransfer = "DGTFConfiguration",
+            GameExternalId = "dg",
+            LockMinute = 10
         });
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
@@ -173,8 +185,13 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "DG",
-            GameExternalId = "dg"
+            GameProviderConfig = "DGConfiguration",
+            GameProviderCodeTransfer = "DGTF",
+            GameProviderConfigTransfer = "DGTFConfiguration",
+            GameExternalId = "dg",
+            LockMinute = 10
         });
+
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
         var absoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
@@ -211,8 +228,13 @@ public class UtensilRepositoryUnitTest
         var gameRecordInfo = Options.Create(new GameRecordInfoOptions
         {
             GameProviderCode = "DG",
-            GameExternalId = "dg"
+            GameProviderConfig = "DGConfiguration",
+            GameProviderCodeTransfer = "DGTF",
+            GameProviderConfigTransfer = "DGTFConfiguration",
+            GameExternalId = "dg",
+            LockMinute = 10
         });
+
         var fakeClient = Substitute.For<IGameCommandClient>();
         var fakeMemoryCache = Substitute.For<IMemoryCache>();
         var absoluteExpirationRelativeToNow = TimeSpan.FromHours(1);

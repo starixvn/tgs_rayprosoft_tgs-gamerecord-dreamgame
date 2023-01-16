@@ -48,8 +48,13 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services
-    .AddGameRecordCore((options, sp) =>
+builder.Services.AddGameRecordCore(
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        options.ConnectionString = configuration.GetConnectionString("Redis")!;
+    },
+    (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
         configuration.GetSection("GameRecordInfo").Bind(options);
@@ -62,17 +67,17 @@ builder.Services
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
-        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameProvidersServiceBaseUrl");
-    },
-    (options, sp) =>
-    {
-        var configuration = sp.GetRequiredService<IConfiguration>();
         options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameCommandClientBaseUrl");
     },
     (options, sp) =>
     {
         var configuration = sp.GetRequiredService<IConfiguration>();
         options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameRoundsServiceBaseUrl");
+    },
+    (options, sp) =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        options.BaseUrl = configuration.GetValue<Uri>("GameRecord:GameInterfaceBaseUrl");
     });
 
 var mongoSetting = builder.Configuration.GetSection("MongoSetting").Get<MongoSettingOptions>();
@@ -99,7 +104,8 @@ builder.Services
             var configuration = sp.GetRequiredService<IConfiguration>();
             options.Url = configuration.GetConnectionString("Nats")!;
         })
-        .AddHandler<ScheduleMessageHandler>(natsSetting.Subject, natsSetting.Group);
+        .AddHandler<ScheduleMessageHandler>(natsSetting.SingleSubject, natsSetting.Group)
+        .AddHandler<TransferScheduleMessageHandler>(natsSetting.TransferSubject, natsSetting.Group);
     })
     .ClearAllExchanges()
     .AddMongoGlobPatternExchange(mongoSetting.GlobPattern, mongoSetting.ManagerName, mongoSetting.QueueName);
@@ -158,6 +164,7 @@ app.MapProfileViewer();
 
 app.MapHealthChecks("/healthz");
 
-_ = app.UseGameRecordRegister();
+_ = app.UseSingleGameRecordRegister();
+_ = app.UseTransferGameRecordRegister();
 
 app.Run();
