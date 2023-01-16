@@ -52,6 +52,11 @@ spec:
                 secretKeyRef:
                   name: tgs-connections
                   key: nats
+            - name: ConnectionStrings__Redis
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: redis
           volumeMounts:
             - mountPath: /config/appsettings.json
               name: appsettings
