@@ -155,7 +155,7 @@ public class TransferTransferUtensilRepositoryUnitTest
         var gameProviderId = Guid.NewGuid();
         _ = fakeClient
             .GameProviderGetGameProviderIdAsync(
-                gameProviderCode: Arg.Is(gameRecordInfo.Value.GameProviderCode),
+                gameProviderCode: Arg.Is(gameRecordInfo.Value.GameProviderCodeTransfer),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(gameProviderId);
 
