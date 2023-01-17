@@ -87,7 +87,7 @@ internal class TransferUtensilRepository : ITransferUtensil
         {
             gameProviderId = await _client
                 .GameProviderGetGameProviderIdAsync(
-                    gameProviderCode: _gameRecordInfo.GameProviderCode,
+                    gameProviderCode: _gameRecordInfo.GameProviderCodeTransfer,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false)
                 ?? throw new Exception($"The identifier for this game provider does not exist.({_gameRecordInfo.GameProviderCodeTransfer})");
