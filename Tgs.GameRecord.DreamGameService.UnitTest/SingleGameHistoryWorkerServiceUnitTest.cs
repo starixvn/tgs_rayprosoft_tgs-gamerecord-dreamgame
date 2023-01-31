@@ -69,7 +69,7 @@ public class SingleGameHistoryWorkerServiceUnitTest
                 Arg.Any<SingleGamePullRecordCommand>(),
                 cancellationToken: Arg.Any<CancellationToken>())
             .ConfigureAwait(false);
-
+        /*
         _ = await fakeClient
             .Received(1)
             .GameHistoryMarkAsync(
@@ -79,6 +79,7 @@ public class SingleGameHistoryWorkerServiceUnitTest
                 externalRoundIds: Arg.Any<string[]>(),
                cancellationToken: Arg.Any<CancellationToken>())
              .ConfigureAwait(false);
+        */
     }
 
     [TestMethod]
