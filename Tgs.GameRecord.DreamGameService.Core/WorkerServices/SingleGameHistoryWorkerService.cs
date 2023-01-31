@@ -63,7 +63,7 @@ internal class SingleGameHistoryWorkerService : ICommandService<SingleGameHistor
                     command: settledCommand,
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-            /*
+            
             var externalRoundIds = gameHistorySettleds.Select(x => x.ExternalRoundId).ToArray();
 
             if (externalRoundIds.Any())
@@ -77,7 +77,7 @@ internal class SingleGameHistoryWorkerService : ICommandService<SingleGameHistor
                         cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
             }
-            */
+            
         }
         catch (Exception ex)
         {
