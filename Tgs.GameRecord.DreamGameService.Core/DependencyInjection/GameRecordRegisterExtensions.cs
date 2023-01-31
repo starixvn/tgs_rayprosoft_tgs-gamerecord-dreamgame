@@ -17,10 +17,10 @@ public static class GameRecordRegisterExtensions
             var gameProviderId = await utensil.GetGameProviderIdAsync().ConfigureAwait(false);
 
             _ = await utensil
-                    .GetGameIdAsync(
-                        gameProviderId,
-                        gameRecordInfo.GameExternalId)
-                    .ConfigureAwait(false);
+                .GetGameIdAsync(
+                    gameProviderId,
+                    gameRecordInfo.GameExternalId)
+                .ConfigureAwait(false);
         }
 
         return app;
