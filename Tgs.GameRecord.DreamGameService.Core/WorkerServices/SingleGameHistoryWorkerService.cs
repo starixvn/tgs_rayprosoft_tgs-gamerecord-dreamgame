@@ -54,7 +54,7 @@ internal class SingleGameHistoryWorkerService : ICommandService<SingleGameHistor
 
             _logger.LogInformation("LogOn:{logOn} | Response:{response}",
                 DateTime.UtcNow.ToString("O"),
-                JsonSerializer.Serialize(gameHistorySettleds));
+                JsonSerializer.Serialize(gameRecords));
 
             var settledCommand = new SingleGamePullRecordCommand(gameRecords);
 
@@ -64,7 +64,7 @@ internal class SingleGameHistoryWorkerService : ICommandService<SingleGameHistor
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
             
-            var externalRoundIds = gameHistorySettleds.Select(x => x.ExternalRoundId).ToArray();
+            var externalRoundIds = gameRecords.Select(x => x.ExternalRoundId).ToArray();
 
             if (externalRoundIds.Any())
             {
