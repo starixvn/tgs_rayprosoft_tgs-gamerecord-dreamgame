@@ -44,7 +44,7 @@ internal class SingleGameHistoryWorkerService : ICommandService<SingleGameHistor
                 JsonSerializer.Serialize(gameHistorySettleds));
 
             var gameRecords = gameHistorySettleds
-                .Where(x => x.ExternalClosedOn.ToDateTimeOffset().UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-3))
+                .Where(x => x.ExternalClosedOn.ToDateTimeOffset().UtcDateTime < _systemClock.CurrentTime.UtcDateTime.AddMinutes(-5))
                 ?? Enumerable.Empty<GameHistorySettled>();
 
             if (!gameRecords.Any())
