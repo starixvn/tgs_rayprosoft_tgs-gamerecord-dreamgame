@@ -53,7 +53,7 @@ public class SingleGameHistoryWorkerServiceUnitTest
                 Arg.Any<CancellationToken>()
             ).Returns(gameRecords.ToAsyncEnumerable());
 
-        _ = fakeSystemClock.CurrentTime.Returns(new DateTimeOffset(DateTime.Parse("2022-04-21 18:35:00"), TimeSpan.FromHours(+8)));
+        _ = fakeSystemClock.CurrentTime.Returns(new DateTimeOffset(DateTime.Parse("2022-04-21 18:37:00"), TimeSpan.FromHours(+8)));
 
         var service = new SingleGameHistoryWorkerService(
             fakeLogger,
