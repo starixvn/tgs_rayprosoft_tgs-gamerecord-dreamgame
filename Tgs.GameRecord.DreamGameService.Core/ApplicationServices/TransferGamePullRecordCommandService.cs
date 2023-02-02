@@ -94,7 +94,7 @@ internal class TransferGamePullRecordCommandService : ICommandService<TransferGa
                 }
             }
 
-            var status = record.IsClosed ? GameRoundStatus.Closed : GameRoundStatus.Open;
+            var status = record.IsClosed || record.IsVoid ? GameRoundStatus.Closed : GameRoundStatus.Open;
 
             var message = new GameRecordMessage(
                 ExternalRoundId: record.ExternalRoundId,
