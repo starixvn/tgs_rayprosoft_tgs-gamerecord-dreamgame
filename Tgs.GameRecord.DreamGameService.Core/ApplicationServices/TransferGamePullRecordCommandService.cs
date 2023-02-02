@@ -73,8 +73,28 @@ internal class TransferGamePullRecordCommandService : ICommandService<TransferGa
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            var clientStatus = GetGameRoundClientStatus(record.IsClosed, record.PlayerWinLoss);
-            var status = record.IsClosed ? GameRoundStatus.Closed : GameRoundStatus.Void;
+            var externalClosedOn = (DateTimeOffset?)null;
+            var clientStatus = GameRoundClientStatus.Open;
+            if (record.IsVoid)
+            {
+                clientStatus = GameRoundClientStatus.Void;
+            }
+            else
+            {
+
+                if (record.IsClosed)
+                {
+                    externalClosedOn = record.ExternalClosedOn.ToDateTimeOffset();
+                    clientStatus = record.PlayerWinLoss.ToDecimal().GetValueOrDefault(0) switch
+                    {
+                        > 0 => GameRoundClientStatus.Win,
+                        < 0 => GameRoundClientStatus.Loss,
+                        _ => GameRoundClientStatus.Draw
+                    };
+                }
+            }
+
+            var status = record.IsClosed ? GameRoundStatus.Closed : GameRoundStatus.Open;
 
             var message = new GameRecordMessage(
                 ExternalRoundId: record.ExternalRoundId,
@@ -90,13 +110,13 @@ internal class TransferGamePullRecordCommandService : ICommandService<TransferGa
                 Status: status,
                 ClientStatus: clientStatus,
                 ExternalCreatedOn: record.ExternalCreatedOn.ToDateTimeOffset(),
-                ExternalClosedOn: record.ExternalClosedOn.ToDateTimeOffset(),
+                ExternalClosedOn: externalClosedOn,
                 BetAmount: record.Bet.ToDecimal().GetValueOrDefault(0),
                 ValidBetAmount: record.ValidBet.ToDecimal().GetValueOrDefault(0),
-                SettleAmount: record.Settle,
+                SettleAmount: record.Settle.ToDecimal().GetValueOrDefault(0),
                 Commission: 0,
-                Turnover: record.Turnover,
-                PlayerWinLoss: record.PlayerWinLoss,
+                Turnover: record.Turnover.ToDecimal().GetValueOrDefault(0),
+                PlayerWinLoss: record.PlayerWinLoss.ToDecimal().GetValueOrDefault(0),
                 AdditionalData: record.AdditionalData,
                 Success: success);
 
@@ -112,18 +132,5 @@ internal class TransferGamePullRecordCommandService : ICommandService<TransferGa
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
-    }
-
-    private GameRoundClientStatus GetGameRoundClientStatus(bool IsClosed, decimal PlayerWinLoss)
-    {
-        if (IsClosed is false)
-            return GameRoundClientStatus.Void;
-
-        return PlayerWinLoss switch
-        {
-            > 0 => GameRoundClientStatus.Win,
-            < 0 => GameRoundClientStatus.Loss,
-            _ => GameRoundClientStatus.Draw
-        };
     }
 }
