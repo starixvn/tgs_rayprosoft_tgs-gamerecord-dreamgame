@@ -11,7 +11,7 @@
 		<PackageReference Include="StackExchange.Redis" Version="2.6.90" />
 		<PackageReference Include="Tgs.GameCommand.Client" Version="0.0.5" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
-		<PackageReference Include="Tgs.GameInterface.DreamGamingService.Client" Version="0.0.4" />
+		<PackageReference Include="Tgs.GameInterface.DreamGamingService.Client" Version="0.0.6" />
 		<PackageReference Include="Tgs.GameRecordSchedules.Client" Version="0.0.7" />
 		<PackageReference Include="Tgs.GameRounds.Client" Version="0.0.34" />
 		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.7" />
