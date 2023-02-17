@@ -6,6 +6,11 @@ metadata:
 data:
   appsettings.json: |
     {
+      "Logging": {
+         "LogLevel": {
+          "Default": "Warning"
+          }
+      },
       "GameRecordInfo": {
         "GameProviderCode": "DG",
         "GameProviderConfig": "DGConfiguration",
