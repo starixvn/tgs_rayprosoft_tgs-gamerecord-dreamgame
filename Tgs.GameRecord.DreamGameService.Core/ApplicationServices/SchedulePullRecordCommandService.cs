@@ -42,6 +42,8 @@ internal class SchedulePullRecordCommandService : ICommandService<SchedulePullRe
             return;
         }
 
+        var marks = new List<string>();
+
         foreach (var gameRecord in gameRecords)
         {
             try
@@ -51,11 +53,25 @@ internal class SchedulePullRecordCommandService : ICommandService<SchedulePullRe
                         command: new(gameRecord),
                         cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
+
+                marks.Add(gameRecord.ExternalRoundId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "遊戲紀錄處理發生例外.({gameRecord})", gameRecord);
             }
+        }
+
+        if (marks.Any())
+        {
+            _ = await _client
+                .GameHistoryMarkAsync(
+                    apiUrl: command.ApiUrl,
+                    apiKey: command.ApiKey,
+                    agentName: command.AgentName,
+                    externalRoundIds: marks,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 }
