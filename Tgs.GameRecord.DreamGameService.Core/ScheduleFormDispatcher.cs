@@ -106,6 +106,13 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
                          .ConfigureAwait(false);
                 }
             }
+            else
+            {
+                _logger.LogWarning("LogOn:{logOn} Message:This agent name ({gameProviderCode}) pull record has been locked. ({id})",
+                    DateTime.Now.ToString("o"),
+                    parameter.AgentName,
+                    id);
+            }
 
             await _clinet
                 .ScheduleFormCompleteAsync(
