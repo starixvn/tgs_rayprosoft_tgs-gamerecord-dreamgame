@@ -7,38 +7,46 @@ data:
   appsettings.json: |
     {
       "Logging": {
-         "LogLevel": {
+        "LogLevel": {
           "Default": "Warning"
-          }
-      },
-      "GameRecordInfo": {
-        "GameProviderCode": "DG",
-        "GameProviderConfig": "DGConfiguration",
-        "GameProviderCodeTransfer": "DGTF",
-        "GameProviderConfigTransfer": "DGTFConfiguration",
-        "GameExternalId": "dg",
-        "LockMinute": 10
+        }
       },
       "GameRecord": {
         "GameCommandClientBaseUrl": "http://game-gamecommand/",
-        "GameRoundsServiceBaseUrl": "http://game-gamerounds/",
-        "GameInterfaceBaseUrl": "http://game-gameinterface-dg-service:9090/"
+        "GameRoundsScheduleClientBaseUrl": "http://game-gamerounds-schedule/",
+        "GameInterfaceClientBaseUrl": "http://game-gameinterface-dg-service:9090/"
       }
     }
-  monitor.settings.json: |
-    {
-      "Metrics": {
-        "MetricCount": "1"
-      },
-      "Logging":{
-        "Console": {
-          "FormatterName": "json"
-        },
-        "LogLevel": {
-          "Default": "Warning",
-          "Microsoft": "Warning",
-          "Microsoft.Diagnostics": "Warning",
-          "Microsoft.Hosting.Lifetime": "Information"
-        }
-      }
-    }
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+
+    processors:
+      batch:
+
+    exporters:
+      otlp:
+        endpoint: "$NODE_IP:4317"
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+        namespace: "tgs"
+
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+
+    service:
+      extensions: [health_check]
+      pipelines:
+        traces: 
+          receivers: [otlp]
+          processors:
+            - batch
+          exporters: [otlp]
+        metrics:
+          receivers: [otlp]
+          exporters: [prometheus]

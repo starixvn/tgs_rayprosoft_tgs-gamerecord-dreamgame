@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Tgs.GameRecord.DreamGameService.Core.DispatchServices;
+using Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
+using Tgs.GameRecord.DreamGameService.Models;
 using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.Controllers;
@@ -10,7 +11,13 @@ public class DreamGameController : ControllerBase
 {
     [HttpPost]
     public ValueTask GameRecordAsync(
-       [FromServices] ICommandService<SingleScheduleDispatchCommand> commandService)
-
-    => commandService.ExecuteAsync(new());
+       [FromServices] ICommandService<SchedulePullRecordCommand> commandService,
+       [FromBody] SchedulePullRecordViewModel source)
+        => commandService
+        .ExecuteAsync(
+            command: new SchedulePullRecordCommand(
+                    source.ApiUrl,
+                    source.ApiKey,
+                    source.AgentName),
+            cancellationToken: HttpContext.RequestAborted);
 }

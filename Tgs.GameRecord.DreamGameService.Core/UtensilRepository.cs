@@ -52,7 +52,7 @@ internal class UtensilRepository : IUtensil
         return gameProviderConfigurationId;
     }
 
-    public async ValueTask<int> GetGameIdAsync(
+    public async ValueTask<int?> GetGameIdAsync(
         Guid gameProviderId,
         string gameExternalId,
         CancellationToken cancellationToken = default)
@@ -76,8 +76,11 @@ internal class UtensilRepository : IUtensil
                         value: gameId.Value);
             }
         }
-        return gameId ?? throw new Exception($"This game does not exist.({gameExternalId})");
+        return gameId;
     }
+
+    public string GetGameProviderCode()
+        => _gameRecordInfo.GameProviderCode;
 
     public async ValueTask<Guid> GetGameProviderIdAsync(
         CancellationToken cancellationToken = default)

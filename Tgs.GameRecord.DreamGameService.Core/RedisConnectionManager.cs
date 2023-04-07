@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using StackExchange.Redis;
-using Tgs.GameRecord.DreamGameService.Core;
 
 namespace Tgs.GameRecord.DreamGameService.Core;
 
