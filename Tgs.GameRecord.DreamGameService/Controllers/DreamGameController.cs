@@ -11,11 +11,11 @@ public class DreamGameController : ControllerBase
 {
     [HttpPost]
     public ValueTask GameRecordAsync(
-       [FromServices] ICommandService<SchedulePullRecordCommand> commandService,
+       [FromServices] ICommandService<PullRecordCommand> commandService,
        [FromBody] SchedulePullRecordViewModel source)
         => commandService
         .ExecuteAsync(
-            command: new SchedulePullRecordCommand(
+            command: new PullRecordCommand(
                     source.ApiUrl,
                     source.ApiKey,
                     source.AgentName),

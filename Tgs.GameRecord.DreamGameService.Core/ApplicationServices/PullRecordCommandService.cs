@@ -5,23 +5,23 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 
-internal class SchedulePullRecordCommandService : ICommandService<SchedulePullRecordCommand>
+internal class PullRecordCommandService : ICommandService<PullRecordCommand>
 {
     private readonly IGameInterfaceDreamGamingClient _client;
-    private readonly ILogger<SchedulePullRecordCommandService> _logger;
-    private readonly ICommandService<ScheduleHandleRecordCommand> _service;
+    private readonly ILogger<PullRecordCommandService> _logger;
+    private readonly ICommandService<HandleRecordCommand> _service;
 
-    public SchedulePullRecordCommandService(
-        ILogger<SchedulePullRecordCommandService> logger,
+    public PullRecordCommandService(
+        ILogger<PullRecordCommandService> logger,
         IGameInterfaceDreamGamingClient client,
-        ICommandService<ScheduleHandleRecordCommand> service)
+        ICommandService<HandleRecordCommand> service)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _service = service ?? throw new ArgumentNullException(nameof(service));
     }
 
-    public async ValueTask ExecuteAsync(SchedulePullRecordCommand command, CancellationToken cancellationToken = default)
+    public async ValueTask ExecuteAsync(PullRecordCommand command, CancellationToken cancellationToken = default)
     {
         var gameRecords = await _client
                 .GameHistorySettledAsync(
@@ -58,7 +58,7 @@ internal class SchedulePullRecordCommandService : ICommandService<SchedulePullRe
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "遊戲紀錄處理發生例外.({gameRecord})", gameRecord);
+                _logger.LogError(ex, "LogOn:{logOn} Message: game record exception.({gameRecord})", DateTime.Now.ToString("o"), gameRecord);
             }
         }
 

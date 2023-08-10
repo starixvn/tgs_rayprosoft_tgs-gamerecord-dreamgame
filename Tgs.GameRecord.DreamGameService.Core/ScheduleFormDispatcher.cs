@@ -14,14 +14,14 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
     private readonly ILogger<ScheduleFormDispatcher> _logger;
     private readonly IScheduleFormLock _scheduleFormLock;
     private readonly ISchedulePullRecordLock _schedulePullRecordLock;
-    private readonly ICommandService<SchedulePullRecordCommand> _scheduleService;
+    private readonly ICommandService<PullRecordCommand> _scheduleService;
 
     public ScheduleFormDispatcher(
         ILogger<ScheduleFormDispatcher> logger,
         IGameRoundsScheduleClient clinet,
         IScheduleFormLock scheduleFormLock,
         ISchedulePullRecordLock schedulePullRecordLock,
-        ICommandService<SchedulePullRecordCommand> scheduleService)
+        ICommandService<PullRecordCommand> scheduleService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _clinet = clinet ?? throw new ArgumentNullException(nameof(clinet));
@@ -80,7 +80,7 @@ internal class ScheduleFormDispatcher : IScheduleFormDispatcher
             {
                 try
                 {
-                    var command = new SchedulePullRecordCommand(
+                    var command = new PullRecordCommand(
                         ApiUrl: new Uri(parameter.ApiUrl),
                         ApiKey: parameter.ApiKey,
                         AgentName: parameter.AgentName);

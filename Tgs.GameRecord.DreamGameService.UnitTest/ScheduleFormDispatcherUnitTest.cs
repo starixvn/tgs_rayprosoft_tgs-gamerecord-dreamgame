@@ -22,7 +22,7 @@ public class ScheduleFormDispatcherUnitTest
         var fakeGameRoundsScheduleClient = Substitute.For<IGameRoundsScheduleClient>();
         var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
         var fakeSchedulePullRecordLock = Substitute.For<ISchedulePullRecordLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<PullRecordCommand>>();
 
         var gameProviderCode = "DGTF";
         var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -86,7 +86,7 @@ public class ScheduleFormDispatcherUnitTest
         await fakeService
             .Received(1)
             .ExecuteAsync(
-                command: Arg.Is(new SchedulePullRecordCommand(
+                command: Arg.Is(new PullRecordCommand(
                     ApiUrl: new Uri(parameter.ApiUrl),
                     ApiKey: parameter.ApiKey,
                     AgentName: parameter.AgentName)),
@@ -121,7 +121,7 @@ public class ScheduleFormDispatcherUnitTest
         var fakeGameRoundsScheduleClient = Substitute.For<IGameRoundsScheduleClient>();
         var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
         var fakeSchedulePullRecordLock = Substitute.For<ISchedulePullRecordLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<PullRecordCommand>>();
 
         var gameProviderCode = "DGTF";
         var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -186,7 +186,7 @@ public class ScheduleFormDispatcherUnitTest
         await fakeService
             .Received(0)
             .ExecuteAsync(
-                command: Arg.Is(new SchedulePullRecordCommand(
+                command: Arg.Is(new PullRecordCommand(
                     ApiUrl: new Uri(parameter.ApiUrl),
                     ApiKey: parameter.ApiKey,
                     AgentName: parameter.AgentName)),
@@ -221,7 +221,7 @@ public class ScheduleFormDispatcherUnitTest
         var fakeGameRoundsScheduleClient = Substitute.For<IGameRoundsScheduleClient>();
         var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
         var fakeSchedulePullRecordLock = Substitute.For<ISchedulePullRecordLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<PullRecordCommand>>();
 
         var gameProviderCode = "DGTF";
         var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -287,7 +287,7 @@ public class ScheduleFormDispatcherUnitTest
         await fakeService
             .Received(0)
             .ExecuteAsync(
-                command: Arg.Is(new SchedulePullRecordCommand(
+                command: Arg.Is(new PullRecordCommand(
                     ApiUrl: new Uri(parameter.ApiUrl),
                     ApiKey: parameter.ApiKey,
                     AgentName: parameter.AgentName)),
@@ -322,7 +322,7 @@ public class ScheduleFormDispatcherUnitTest
         var fakeGameRoundsScheduleClient = Substitute.For<IGameRoundsScheduleClient>();
         var fakeScheduleFormLock = Substitute.For<IScheduleFormLock>();
         var fakeSchedulePullRecordLock = Substitute.For<ISchedulePullRecordLock>();
-        var fakeService = Substitute.For<ICommandService<SchedulePullRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<PullRecordCommand>>();
 
         var gameProviderCode = "DGTF";
         var id = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -386,7 +386,7 @@ public class ScheduleFormDispatcherUnitTest
         await fakeService
             .Received(0)
             .ExecuteAsync(
-                command: Arg.Is(new SchedulePullRecordCommand(
+                command: Arg.Is(new PullRecordCommand(
                     ApiUrl: new Uri(parameter.ApiUrl),
                     ApiKey: parameter.ApiKey,
                     AgentName: parameter.AgentName)),

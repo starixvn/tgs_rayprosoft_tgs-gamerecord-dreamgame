@@ -1,6 +1,6 @@
 ﻿namespace Tgs.GameRecord.DreamGameService.Core.ApplicationServices;
 
-public record SchedulePullRecordCommand(
+public record PullRecordCommand(
     Uri ApiUrl,
     string ApiKey,
     string AgentName);

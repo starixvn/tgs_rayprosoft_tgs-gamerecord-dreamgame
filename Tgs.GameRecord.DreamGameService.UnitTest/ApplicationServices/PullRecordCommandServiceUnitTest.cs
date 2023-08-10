@@ -15,16 +15,16 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGameService.UnitTest.ApplicationServices;
 
-public class SchedulePullRecordCommandServiceUnitTest
+public class PullRecordCommandServiceUnitTest
 {
     [Fact]
     public async Task No_Data()
     {
-        var fakeLogger = NullLogger<SchedulePullRecordCommandService>.Instance;
+        var fakeLogger = NullLogger<PullRecordCommandService>.Instance;
         var fakeClient = Substitute.For<IGameInterfaceDreamGamingClient>();
-        var fakeService = Substitute.For<ICommandService<ScheduleHandleRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<HandleRecordCommand>>();
 
-        var command = new SchedulePullRecordCommand(
+        var command = new PullRecordCommand(
             ApiUrl: new("http://localhost/"),
             ApiKey: "974e8e9a072e4ad59a9e3f43a06ff9ae",
             AgentName: "DGTE0105CO");
@@ -37,7 +37,7 @@ public class SchedulePullRecordCommandServiceUnitTest
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(Enumerable.Empty<GameHistorySettled>().ToAsyncEnumerable());
 
-        var service = new SchedulePullRecordCommandService(
+        var service = new PullRecordCommandService(
             fakeLogger,
             fakeClient,
             fakeService);
@@ -61,11 +61,11 @@ public class SchedulePullRecordCommandServiceUnitTest
     [Fact]
     public async Task Normal_Process()
     {
-        var fakeLogger = NullLogger<SchedulePullRecordCommandService>.Instance;
+        var fakeLogger = NullLogger<PullRecordCommandService>.Instance;
         var fakeClient = Substitute.For<IGameInterfaceDreamGamingClient>();
-        var fakeService = Substitute.For<ICommandService<ScheduleHandleRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<HandleRecordCommand>>();
 
-        var command = new SchedulePullRecordCommand(
+        var command = new PullRecordCommand(
             ApiUrl: new("http://localhost/"),
             ApiKey: "974e8e9a072e4ad59a9e3f43a06ff9ae",
             AgentName: "DGTE0105CO");
@@ -97,7 +97,7 @@ public class SchedulePullRecordCommandServiceUnitTest
                 cancellationToken: Arg.Any<CancellationToken>())
             .Returns(gameHistorySettleds.ToAsyncEnumerable());
 
-        var service = new SchedulePullRecordCommandService(
+        var service = new PullRecordCommandService(
             fakeLogger,
             fakeClient,
             fakeService);
@@ -121,11 +121,11 @@ public class SchedulePullRecordCommandServiceUnitTest
     [Fact]
     public async Task Schedule_Handle_Record_Exception()
     {
-        var fakeLogger = NullLogger<SchedulePullRecordCommandService>.Instance;
+        var fakeLogger = NullLogger<PullRecordCommandService>.Instance;
         var fakeClient = Substitute.For<IGameInterfaceDreamGamingClient>();
-        var fakeService = Substitute.For<ICommandService<ScheduleHandleRecordCommand>>();
+        var fakeService = Substitute.For<ICommandService<HandleRecordCommand>>();
 
-        var command = new SchedulePullRecordCommand(
+        var command = new PullRecordCommand(
             ApiUrl: new("http://localhost/"),
             ApiKey: "974e8e9a072e4ad59a9e3f43a06ff9ae",
             AgentName: "DGTE0105CO");
@@ -159,11 +159,11 @@ public class SchedulePullRecordCommandServiceUnitTest
 
         _ = fakeService
             .ExecuteAsync(
-                command: Arg.Any<ScheduleHandleRecordCommand>(),
+                command: Arg.Any<HandleRecordCommand>(),
                 cancellationToken: Arg.Any<CancellationToken>())
             .Throws<Exception>();
 
-        var service = new SchedulePullRecordCommandService(
+        var service = new PullRecordCommandService(
             fakeLogger,
             fakeClient,
             fakeService);

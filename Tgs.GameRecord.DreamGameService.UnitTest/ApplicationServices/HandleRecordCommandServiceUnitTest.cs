@@ -12,7 +12,7 @@ using Tgs.GameRounds.Work.Common.Protos;
 
 namespace Tgs.GameRecord.DreamGameService.UnitTest.ApplicationServices;
 
-public class ScheduleHandleRecordCommandServiceUnitTest
+public class HandleRecordCommandServiceUnitTest
 {
     [Fact]
     public async Task Normal_Process()
@@ -20,7 +20,7 @@ public class ScheduleHandleRecordCommandServiceUnitTest
         var fakeUtensil = Substitute.For<IUtensil>();
         var fakeGameRoundsWorkClient = Substitute.For<IGameRoundsWorkClient>();
 
-        var command = new ScheduleHandleRecordCommand(
+        var command = new HandleRecordCommand(
             GameRecord: new GameHistorySettled
             {
                 PlayerCode = "test",
@@ -82,7 +82,7 @@ public class ScheduleHandleRecordCommandServiceUnitTest
                 Arg.Any<CancellationToken>())
             .Returns(gameProviderConfigurationId);
 
-        var service = new ScheduleHandleRecordCommandService(
+        var service = new HandleRecordCommandService(
             fakeUtensil,
             fakeGameRoundsWorkClient);
 
@@ -100,7 +100,7 @@ public class ScheduleHandleRecordCommandServiceUnitTest
 
         await fakeGameRoundsWorkClient
             .Received(1)
-            .RoundBidding(
+            .RoundExchangeRateBiddingAsync(
                 gameProviderId: Arg.Is(gameProviderId),
                 gameProviderCode: Arg.Is(gameProviderCode),
                 externalRoundId: Arg.Is(command.GameRecord.ExternalRoundId),
