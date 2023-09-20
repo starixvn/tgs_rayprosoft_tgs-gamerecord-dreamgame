@@ -1,6 +1,6 @@
-# tgs-gameproviders-gamerecord-dreamgame-service
+# tgs-gamerecord-dreamgame
 
-Tgs GameProviders GameRecord DreamGame Service
+Tgs GameProviders GameRecord DreamGame
 
 ## Getting started
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/rayprosoft/tgs-gameproviders-gamerecord-dreamgame-service.git
+git remote add origin https://gitlab.com/rayprosoft/tgs-gamerecord-dreamgame.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/rayprosoft/tgs-gameproviders-gamerecord-dreamgame-service/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.com/rayprosoft/tgs-gamerecord-dreamgame/-/settings/integrations)
 
 ## Collaborate with your team
 
