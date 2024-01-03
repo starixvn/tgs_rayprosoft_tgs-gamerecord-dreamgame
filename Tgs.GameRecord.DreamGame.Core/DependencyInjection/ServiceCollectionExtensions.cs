@@ -21,5 +21,6 @@ public static class ServiceCollectionExtensions
         .AddGameInterfaceDreamGamingServiceClient(gameInterfaceDreamGamingClientOptions)
         .AddGameRecordHandleClient()
         .AddTransient<IHangfireUtensil, HangfireUtensil>()
-        .AddTransient<IHangfireLock>(sp => ActivatorUtilities.CreateInstance<HangfireLock>(sp, redisDatabaseResolver(sp)));
+        .AddTransient<IHangfireLock>(sp => ActivatorUtilities.CreateInstance<HangfireLock>(sp, redisDatabaseResolver(sp)))
+        .AddTransient<IPullRecordLock>(sp => ActivatorUtilities.CreateInstance<PullRecordLock>(sp, redisDatabaseResolver(sp)));
 }
