@@ -10,8 +10,8 @@ internal class PullRecordLock(
     private readonly GameRecordInfoOptions _gameRecordInfo = options.Value;
 
     public Task<bool> LockingAsync(string agentName)
-        => database.StringSetAsync(key: $"{_gameRecordInfo.GameProviderCode.ToLower()}:schedulepullrecord:{agentName}", value: agentName, expiry: TimeSpan.FromMinutes(_gameRecordInfo.LockMinute), when: When.NotExists);
+        => database.StringSetAsync(key: $"gamerecord-dgtf-pull-locking:{agentName}", value: agentName, expiry: TimeSpan.FromMinutes(_gameRecordInfo.LockMinute), when: When.NotExists);
 
     public Task<bool> UnlockAsync(string agentName)
-        => database.KeyDeleteAsync(key: $"{_gameRecordInfo.GameProviderCode.ToLower()}:schedulepullrecord:{agentName}");
+        => database.KeyDeleteAsync(key: $"gamerecord-dgtf-pull-locking:{agentName}");
 }

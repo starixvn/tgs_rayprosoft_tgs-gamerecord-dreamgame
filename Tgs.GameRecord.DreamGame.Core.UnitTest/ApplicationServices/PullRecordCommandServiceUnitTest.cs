@@ -58,6 +58,11 @@ public class PullRecordCommandServiceUnitTest
             agentName: Arg.Is(command.AgentName),
             externalRoundIds: Arg.Any<List<string>>(),
             cancellationToken: Arg.Any<CancellationToken>());
+
+        _ = fakePullRecordLock
+            .Received(1)
+            .UnlockAsync(
+            agentName: Arg.Is(command.AgentName));
     }
 
     [Fact]
@@ -119,6 +124,11 @@ public class PullRecordCommandServiceUnitTest
             agentName: Arg.Is(command.AgentName),
             externalRoundIds: Arg.Any<List<string>>(),
             cancellationToken: Arg.Any<CancellationToken>());
+
+        _ = fakePullRecordLock
+            .Received(1)
+            .UnlockAsync(
+            agentName: Arg.Is(command.AgentName));
     }
 
     [Fact]
@@ -186,5 +196,10 @@ public class PullRecordCommandServiceUnitTest
             agentName: Arg.Is(command.AgentName),
             externalRoundIds: Arg.Any<List<string>>(),
             cancellationToken: Arg.Any<CancellationToken>());
+
+        _ = fakePullRecordLock
+            .Received(1)
+            .UnlockAsync(
+            agentName: Arg.Is(command.AgentName));
     }
 }
