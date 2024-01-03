@@ -1,22 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.6" />
+		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.7" />
 		<PackageReference Include="Hangfire.Console" Version="1.4.2" />
 		<PackageReference Include="Hangfire.Dashboard.Management" Version="1.7.9" />
-		<PackageReference Include="HangFire.Redis.StackExchange" Version="1.9.0" />
-		<PackageReference Include="StackExchange.Redis" Version="2.6.122" />
-		<PackageReference Include="Tgs.GameCommand.Client" Version="0.0.10" />
+		<PackageReference Include="HangFire.Redis.StackExchange" Version="1.9.3" />
+		<PackageReference Include="StackExchange.Redis" Version="2.7.10" />
+		<PackageReference Include="Tgs.GameCommand.Client" Version="0.0.11" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
-		<PackageReference Include="Tgs.GameInterface.DreamGamingService.Client" Version="0.0.12" />
-		<PackageReference Include="Tgs.GameRecord.Handle.Client" Version="0.0.31" />
-		<PackageReference Include="Tgs.GameRounds.Schedule.Client" Version="0.0.35" />
+		<PackageReference Include="Tgs.GameInterface.DreamGamingService.Client" Version="0.0.14" />
+		<PackageReference Include="Tgs.GameRecord.Handle.Client" Version="0.0.36" />
 		<PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\Tgs.GameRecord.DreamGame.Common\Tgs.GameRecord.DreamGame.Common.csproj" />
 	</ItemGroup>
 </Project>

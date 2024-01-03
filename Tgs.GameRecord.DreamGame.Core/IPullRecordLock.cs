@@ -1,6 +1,6 @@
 ﻿namespace Tgs.GameRecord.DreamGame.Core;
 
-public interface ISchedulePullRecordLock
+public interface IPullRecordLock
 {
     public Task<bool> LockingAsync(string agentName);
 

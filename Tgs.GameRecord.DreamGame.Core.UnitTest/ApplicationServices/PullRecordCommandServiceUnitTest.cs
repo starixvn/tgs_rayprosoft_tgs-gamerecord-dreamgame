@@ -21,6 +21,7 @@ public class PullRecordCommandServiceUnitTest
     public async Task No_Data()
     {
         var fakeLogger = NullLogger<PullRecordCommandService>.Instance;
+        var fakePullRecordLock = Substitute.For<IPullRecordLock>();
         var fakeClient = Substitute.For<IGameInterfaceDreamGamingClient>();
         var fakeService = Substitute.For<ICommandService<HandleRecordCommand>>();
 
@@ -28,6 +29,10 @@ public class PullRecordCommandServiceUnitTest
             ApiUrl: new("http://localhost/"),
             ApiKey: "974e8e9a072e4ad59a9e3f43a06ff9ae",
             AgentName: "DGTE0105CO");
+
+        _ = fakePullRecordLock.LockingAsync(
+            agentName: Arg.Is(command.AgentName))
+            .Returns(true);
 
         _ = fakeClient
             .GameHistorySettledAsync(
@@ -39,6 +44,7 @@ public class PullRecordCommandServiceUnitTest
 
         var service = new PullRecordCommandService(
             fakeLogger,
+            fakePullRecordLock,
             fakeClient,
             fakeService);
 
@@ -58,6 +64,7 @@ public class PullRecordCommandServiceUnitTest
     public async Task Normal_Process()
     {
         var fakeLogger = NullLogger<PullRecordCommandService>.Instance;
+        var fakePullRecordLock = Substitute.For<IPullRecordLock>();
         var fakeClient = Substitute.For<IGameInterfaceDreamGamingClient>();
         var fakeService = Substitute.For<ICommandService<HandleRecordCommand>>();
 
@@ -66,10 +73,13 @@ public class PullRecordCommandServiceUnitTest
             ApiKey: "974e8e9a072e4ad59a9e3f43a06ff9ae",
             AgentName: "DGTE0105CO");
 
+        _ = fakePullRecordLock.LockingAsync(
+            agentName: Arg.Is(command.AgentName))
+            .Returns(true);
+
         var gameHistorySettleds = new GameHistorySettled[]
         {
-            new GameHistorySettled
-            {
+            new() {
                 PlayerCode = "test",
                 ExternalRoundId = "10893708376",
                 ExternalGameId = "bacc",
@@ -95,6 +105,7 @@ public class PullRecordCommandServiceUnitTest
 
         var service = new PullRecordCommandService(
             fakeLogger,
+            fakePullRecordLock,
             fakeClient,
             fakeService);
 
@@ -114,6 +125,7 @@ public class PullRecordCommandServiceUnitTest
     public async Task Schedule_Handle_Record_Exception()
     {
         var fakeLogger = NullLogger<PullRecordCommandService>.Instance;
+        var fakePullRecordLock = Substitute.For<IPullRecordLock>();
         var fakeClient = Substitute.For<IGameInterfaceDreamGamingClient>();
         var fakeService = Substitute.For<ICommandService<HandleRecordCommand>>();
 
@@ -122,10 +134,13 @@ public class PullRecordCommandServiceUnitTest
             ApiKey: "974e8e9a072e4ad59a9e3f43a06ff9ae",
             AgentName: "DGTE0105CO");
 
+        _ = fakePullRecordLock.LockingAsync(
+            agentName: Arg.Is(command.AgentName))
+            .Returns(true);
+
         var gameHistorySettleds = new GameHistorySettled[]
         {
-            new GameHistorySettled
-            {
+            new() {
                 PlayerCode = "test",
                 ExternalRoundId = "10893708376",
                 ExternalGameId = "bacc",
@@ -157,6 +172,7 @@ public class PullRecordCommandServiceUnitTest
 
         var service = new PullRecordCommandService(
             fakeLogger,
+            fakePullRecordLock,
             fakeClient,
             fakeService);
 

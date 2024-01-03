@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using StackExchange.Redis;
+using Tgs.GameRecord.DreamGame.Core;
+using Tgs.GameRecord.DreamGame;
 
-namespace Tgs.GameRecord.DreamGame.Core;
+namespace Tgs.GameRecord.DreamGame;
 
 internal class RedisConnectionManager : IDisposable
 {
@@ -12,8 +14,7 @@ internal class RedisConnectionManager : IDisposable
 
     public RedisConnectionManager(IOptions<RedisOptions> optionsAccessor)
     {
-        if (optionsAccessor is null)
-            throw new ArgumentNullException(nameof(optionsAccessor));
+        ArgumentNullException.ThrowIfNull(optionsAccessor);
 
         var options = optionsAccessor.Value;
 

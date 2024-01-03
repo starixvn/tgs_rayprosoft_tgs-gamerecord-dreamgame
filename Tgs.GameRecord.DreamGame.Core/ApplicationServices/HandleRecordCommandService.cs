@@ -1,22 +1,16 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Text.Json.Nodes;
+using Microsoft.Extensions.Options;
 using Tgs.GameRecord.Handle.Client;
 using Tgs.GameRecord.Handle.Common.Protos;
 using Tgs.ServiceUtility;
 
 namespace Tgs.GameRecord.DreamGame.Core.ApplicationServices;
 
-internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
+internal class HandleRecordCommandService(
+    IOptions<GameRecordInfoOptions> options,
+    IGameRecordHandleClient client) : ICommandService<HandleRecordCommand>
 {
-    private readonly IGameRecordHandleClient _client;
-    private readonly GameRecordInfoOptions _gameRecordInfo;
-
-    public HandleRecordCommandService(
-        IOptions<GameRecordInfoOptions> options,
-        IGameRecordHandleClient client)
-    {
-        _gameRecordInfo = options.Value;
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-    }
+    private readonly GameRecordInfoOptions _gameRecordInfo = options.Value;
 
     public ValueTask ExecuteAsync(HandleRecordCommand command, CancellationToken cancellationToken = default)
     {
@@ -45,7 +39,7 @@ internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
             winLoss = command.GameRecord.PlayerWinLoss.ToDecimal().GetValueOrDefault(0);
         }
 
-        return _client
+        return client
             .MessageAsync(
             gameProviderCode: _gameRecordInfo.GameProviderCode,
             playerCode: command.GameRecord.PlayerCode,
@@ -68,7 +62,7 @@ internal class HandleRecordCommandService : ICommandService<HandleRecordCommand>
             commission: commission,
             turnover: turnover,
             winLoss: winLoss,
-            additionalData: command.GameRecord.AdditionalData,
+            additionalData: JsonNode.Parse(command.GameRecord.AdditionalData)!,
             cancellationToken: cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
-﻿namespace Tgs.GameRecord.DreamGame.Core;
+﻿using Tgs.GameRecord.DreamGame.Core;
+namespace Tgs.GameRecord.DreamGame;
 
 public record RedisOptions
 {
