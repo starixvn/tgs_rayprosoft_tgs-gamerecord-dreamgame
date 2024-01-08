@@ -82,7 +82,7 @@ internal class PullRecordCommandService(
         }
         finally
         {
-            _ = await pullRecordLock.UnlockAsync(
+            _ = await pullRecordLock.UnlockedAsync(
                 agentName: command.AgentName)
                 .ConfigureAwait(false);
         }

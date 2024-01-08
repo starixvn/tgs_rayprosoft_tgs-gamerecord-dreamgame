@@ -61,7 +61,7 @@ public class PullRecordCommandServiceUnitTest
 
         _ = fakePullRecordLock
             .Received(1)
-            .UnlockAsync(
+            .UnlockedAsync(
             agentName: Arg.Is(command.AgentName));
     }
 
@@ -127,7 +127,7 @@ public class PullRecordCommandServiceUnitTest
 
         _ = fakePullRecordLock
             .Received(1)
-            .UnlockAsync(
+            .UnlockedAsync(
             agentName: Arg.Is(command.AgentName));
     }
 
@@ -199,7 +199,7 @@ public class PullRecordCommandServiceUnitTest
 
         _ = fakePullRecordLock
             .Received(1)
-            .UnlockAsync(
+            .UnlockedAsync(
             agentName: Arg.Is(command.AgentName));
     }
 }
