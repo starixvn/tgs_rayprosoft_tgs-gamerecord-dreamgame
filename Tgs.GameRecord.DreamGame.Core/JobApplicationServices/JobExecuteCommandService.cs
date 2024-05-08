@@ -8,23 +8,23 @@ using Valhalla.MessageQueue;
 namespace Tgs.GameRecord.DreamGame.Core.JobApplicationServices;
 
 internal class JobExecuteCommandService(
-    ILogger<JobExecuteCommandService> logger,
-    IMessageSender messageSender) : ICommandService<JobExecuteCommand>
+	ILogger<JobExecuteCommandService> logger,
+	IMessageSender messageSender) : ICommandService<JobExecuteCommand>
 {
-    public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
-    {
-        var parameters = new DreamGameGameRecordMessage
-        {
-            ApiUrl = command.ApiUrl,
-            ApiKey = command.ApiKey,
-            AgentName = command.AgentName,
-        };
+	public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
+	{
+		var parameters = new DreamGameGameRecordMessage
+		{
+			ApiUrl = command.ApiUrl,
+			ApiKey = command.ApiKey,
+			AgentName = command.AgentName,
+		};
 
-        logger.LogInformation("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
+		logger.LogInformation("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
 
-        return messageSender.PublishAsync(
-            subject: DreamGameNatsConst.SchedulePublish,
-            data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
-            cancellationToken: cancellationToken);
-    }
+		return messageSender.PublishAsync(
+			subject: DreamGameNatsConst.SchedulePublish,
+			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
+			cancellationToken: cancellationToken);
+	}
 }

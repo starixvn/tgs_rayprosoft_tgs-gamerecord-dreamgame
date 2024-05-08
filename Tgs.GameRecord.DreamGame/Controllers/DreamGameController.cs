@@ -10,12 +10,12 @@ namespace Tgs.GameRecord.DreamGame.Controllers;
 [ApiController]
 public class DreamGameController : ControllerBase
 {
-    [HttpPost]
-    public ValueTask GameRecordAsync(
-        [FromServices] IMessageSender messageSender,
-        DreamGameGameRecordMessage source)
-        => messageSender.PublishAsync(
-            subject: DreamGameNatsConst.ManualPublish,
-            data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
-            cancellationToken: HttpContext.RequestAborted);
+	[HttpPost]
+	public ValueTask GameRecordAsync(
+		[FromServices] IMessageSender messageSender,
+		DreamGameGameRecordMessage source)
+		=> messageSender.PublishAsync(
+			subject: DreamGameNatsConst.ManualPublish,
+			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(source)),
+			cancellationToken: HttpContext.RequestAborted);
 }

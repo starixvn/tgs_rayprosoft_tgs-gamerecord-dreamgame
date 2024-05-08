@@ -4,9 +4,9 @@ namespace Tgs.GameRecord.DreamGame.Core;
 
 public interface IHangfireUtensil
 {
-    public Task JobCheckAsync();
+	public Task JobCheckAsync();
 
-    public Task JobExecuteAsync(JobExecuteCommand source);
+	public Task JobExecuteAsync(JobExecuteCommand source);
 
-    public Task JobInitAsync();
+	public Task JobInitAsync();
 }

@@ -1,7 +1,6 @@
-﻿using Tgs.GameRecord.DreamGame.Core;
-namespace Tgs.GameRecord.DreamGame;
+﻿namespace Tgs.GameRecord.DreamGame;
 
 public record RedisOptions
 {
-    public string ConnectionString { get; set; } = "localhost";
+	public string ConnectionString { get; set; } = "localhost";
 }

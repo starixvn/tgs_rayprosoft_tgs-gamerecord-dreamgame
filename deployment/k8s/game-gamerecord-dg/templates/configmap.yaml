@@ -9,7 +9,8 @@ data:
       "Logging": {
         "LogLevel": {
           "Default": "Warning",
-          "Tgs.GameRecord.DreamGame.Messages": "Information"
+          "Tgs.GameRecord.DreamGame.Messages": "Information",
+          "Tgs.GameRecord.DreamGame.Core.ApplicationServices.HandleRecordCommandService": "Information"
         }
       },
       "GameRecord": {

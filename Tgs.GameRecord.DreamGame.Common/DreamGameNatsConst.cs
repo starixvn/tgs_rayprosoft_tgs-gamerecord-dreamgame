@@ -2,6 +2,6 @@
 
 public record DreamGameNatsConst
 {
-    public const string SchedulePublish = "gp.gamerecord.dg.schedule";
-    public const string ManualPublish = "gp.gamerecord.dg.manual";
+	public const string SchedulePublish = "gp.gamerecord.dg.schedule";
+	public const string ManualPublish = "gp.gamerecord.dg.manual";
 }

@@ -9,23 +9,26 @@ namespace Tgs.GameRecord.DreamGame.Messages;
 
 internal class GameRecordMessageHandler(
    ILogger<GameRecordMessageHandler> logger,
-   ICommandService<PullRecordCommand> service) : IMessageHandler
+   ICommandService<PullRecordCommand> service) : IMessageHandler<ReadOnlyMemory<byte>>
 {
-    public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
-    {
-        var json = Encoding.UTF8.GetString(data.Span);
-        var message = JsonSerializer.Deserialize<DreamGameGameRecordMessage>(json)
-            ?? throw new NullReferenceException("The request data resolves to a null value");
+	public ValueTask HandleAsync(string subject, ReadOnlyMemory<byte> data, IEnumerable<MessageHeaderValue>? headerValues, CancellationToken cancellationToken = default)
+	{
+		var json = Encoding.UTF8.GetString(data.Span);
+		var message = JsonSerializer.Deserialize<DreamGameGameRecordMessage>(json)
+			?? throw new NullReferenceException("The request data resolves to a null value");
 
-        logger.LogInformation("LogOn:{logOn} Information Request:{message}", DateTime.Now.ToString("o"), message);
+		logger.LogInformation("LogOn:{logOn} Subject:{subject} Information Request:{message}",
+			DateTime.Now.ToString("o"),
+			subject,
+			message);
 
-        var command = new PullRecordCommand(
-            ApiUrl: message.ApiUrl,
-            ApiKey: message.ApiKey,
-            AgentName: message.AgentName);
+		var command = new PullRecordCommand(
+			ApiUrl: message.ApiUrl,
+			ApiKey: message.ApiKey,
+			AgentName: message.AgentName);
 
-        return service.ExecuteAsync(
-            command: command,
-            cancellationToken: cancellationToken);
-    }
+		return service.ExecuteAsync(
+			command: command,
+			cancellationToken: cancellationToken);
+	}
 }

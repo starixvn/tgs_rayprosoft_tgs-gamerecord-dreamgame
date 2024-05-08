@@ -8,19 +8,18 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddGameRecordCore(
-        this IServiceCollection services,
-        Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
-        Action<GameInterfaceDreamGamingClientOptions, IServiceProvider> gameInterfaceDreamGamingClientOptions,
-        Func<IServiceProvider, IDatabase> redisDatabaseResolver)
-        => services
-        .RegisterAllServiceUtilityTypes(
-            Assembly.GetExecutingAssembly(),
-            ServiceLifetime.Transient)
-        .AddGameCommandClient(gameCommandClientOptions)
-        .AddGameInterfaceDreamGamingServiceClient(gameInterfaceDreamGamingClientOptions)
-        .AddGameRecordHandleClient()
-        .AddTransient<IHangfireUtensil, HangfireUtensil>()
-        .AddTransient<IHangfireLock>(sp => ActivatorUtilities.CreateInstance<HangfireLock>(sp, redisDatabaseResolver(sp)))
-        .AddTransient<IPullRecordLock>(sp => ActivatorUtilities.CreateInstance<PullRecordLock>(sp, redisDatabaseResolver(sp)));
+	public static IServiceCollection AddGameRecordCore(
+		this IServiceCollection services,
+		Action<GameCommandClientOptions, IServiceProvider> gameCommandClientOptions,
+		Action<GameInterfaceDreamGamingClientOptions, IServiceProvider> gameInterfaceDreamGamingClientOptions,
+		Func<IServiceProvider, IDatabase> redisDatabaseResolver)
+		=> services
+		.RegisterAllServiceUtilityTypes(
+			Assembly.GetExecutingAssembly(),
+			ServiceLifetime.Transient)
+		.AddGameCommandClient(gameCommandClientOptions)
+		.AddGameInterfaceDreamGamingServiceClient(gameInterfaceDreamGamingClientOptions)
+		.AddTransient<IHangfireUtensil, HangfireUtensil>()
+		.AddTransient<IHangfireLock>(sp => ActivatorUtilities.CreateInstance<HangfireLock>(sp, redisDatabaseResolver(sp)))
+		.AddTransient<IPullRecordLock>(sp => ActivatorUtilities.CreateInstance<PullRecordLock>(sp, redisDatabaseResolver(sp)));
 }
