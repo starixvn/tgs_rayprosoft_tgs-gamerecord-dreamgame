@@ -20,6 +20,9 @@ public class HandleRecordCommandServiceUnitTest
 		var gameRecordInfo = Options.Create(new GameRecordInfoOptions
 		{
 			GameProviderCode = "DGTF",
+			GameProviderConfiguration = "DGTFConfiguration",
+			HangfirePrefix = "gamerecord-dgtf-hangfire:",
+			HangfireLocking = "gamerecord-dgtf-locking:",
 			LockMinute = 10
 		});
 		var fakeMessageSender = Substitute.For<IMessageSender>();
