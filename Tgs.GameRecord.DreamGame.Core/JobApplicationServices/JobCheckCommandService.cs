@@ -20,6 +20,7 @@ internal class JobCheckCommandService(
 				command: new(),
 				cancellationToken: cancellationToken);
 		}
+
 		logger.LogWarning("LogOn:{logOn} Message:檢查遊戲廠商排程有啟動，數量({count})。", DateTime.Now.ToString("o"), connection.GetRecurringJobs().Count);
 		return ValueTask.CompletedTask;
 	}
