@@ -22,6 +22,7 @@ internal class PullRecordCommandService(
 				command.AgentName);
 			return;
 		}
+
 		try
 		{
 			var gameRecords = await client.GameHistorySettledAsync(

@@ -99,8 +99,8 @@ builder.Services
 	.AddMessageQueue()
 	.AddNatsMessageQueue(config => config
 		.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))
-		.AddHandler<GameRecordMessageHandler>(DreamGameNatsConst.SchedulePublish, DreamGameNatsConst.SchedulePublish)
-		.AddHandler<GameRecordMessageHandler>(DreamGameNatsConst.ManualPublish, DreamGameNatsConst.ManualPublish))
+		.AddHandler<ScheduleMessageHandler>(DreamGameNatsConst.SchedulePublish, DreamGameNatsConst.SchedulePublish)
+		.AddHandler<ManualMessageHandler>(DreamGameNatsConst.ManualPublish, DreamGameNatsConst.ManualPublish))
 	.ClearAllExchanges()
 	.AddNatsGlobPatternExchange("*");
 
