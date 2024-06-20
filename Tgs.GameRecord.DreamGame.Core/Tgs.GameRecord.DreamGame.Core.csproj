@@ -7,7 +7,7 @@
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.12" />
+		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
 		<PackageReference Include="Hangfire.Console" Version="1.4.3" />
 		<PackageReference Include="Hangfire.Dashboard.Management" Version="1.7.9" />
 		<PackageReference Include="HangFire.Redis.StackExchange" Version="1.9.3" />
@@ -16,8 +16,8 @@
 		<PackageReference Include="StackExchange.Redis" Version="2.7.33" />
 		<PackageReference Include="Tgs.GameCommand.Client" Version="0.0.11" />
 		<PackageReference Include="System.Linq.Async" Version="6.0.1" />
-		<PackageReference Include="Tgs.GameInterface.DreamGamingService.Client" Version="1.0.0" />
-		<PackageReference Include="Tgs.GameRecord.Handle.Client" Version="1.0.5" />
+		<PackageReference Include="Tgs.GameInterface.DreamGamingService.Client" Version="1.0.1" />
+		<PackageReference Include="Tgs.GameRecord.Handle.Client" Version="1.0.6" />
 		<PackageReference Include="Tgs.MessageQueue.Nats.Serializers" Version="0.0.2" />
 		<PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
 	</ItemGroup>
