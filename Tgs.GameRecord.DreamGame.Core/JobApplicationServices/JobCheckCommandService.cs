@@ -1,4 +1,5 @@
-﻿using Hangfire;
+﻿using System.Text.Json;
+using Hangfire;
 using Hangfire.Storage;
 using Microsoft.Extensions.Logging;
 using Tgs.ServiceUtility;
@@ -14,14 +15,24 @@ internal class JobCheckCommandService(
 		using var connection = JobStorage.Current.GetConnection();
 		if (connection.GetRecurringJobs().Count == 0)
 		{
-			logger.LogError("LogOn:{logOn} Message:檢查遊戲廠商排程未啟動，進行重置。", DateTime.Now.ToString("o"));
+			logger.LogError("{logError}",
+				JsonSerializer.Serialize(new
+				{
+					LogOn = DateTime.Now.ToString("u"),
+					Message = "This game provider configuration schedule has not been started, initializing is required."
+				}));
 			return service
 				.ExecuteAsync(
 				command: new(),
 				cancellationToken: cancellationToken);
 		}
 
-		logger.LogWarning("LogOn:{logOn} Message:檢查遊戲廠商排程有啟動，數量({count})。", DateTime.Now.ToString("o"), connection.GetRecurringJobs().Count);
+		logger.LogWarning("{logWarning}",
+			JsonSerializer.Serialize(new
+			{
+				LogOn = DateTime.Now.ToString("u"),
+				Message = $"This game provider configuration schedule has been started ({connection.GetRecurringJobs().Count})."
+			}));
 		return ValueTask.CompletedTask;
 	}
 }

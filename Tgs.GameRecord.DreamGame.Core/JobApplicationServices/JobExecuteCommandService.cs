@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Tgs.GameRecord.DreamGame.Common;
 using Tgs.ServiceUtility;
@@ -13,18 +12,30 @@ internal class JobExecuteCommandService(
 {
 	public ValueTask ExecuteAsync(JobExecuteCommand command, CancellationToken cancellationToken = default)
 	{
-		var parameters = new DreamGameGameRecordMessage
+		var message = new DreamGameGameRecordMessage
 		{
 			ApiUrl = command.ApiUrl,
 			ApiKey = command.ApiKey,
 			AgentName = command.AgentName,
 		};
 
-		logger.LogInformation("LogOn:{logOn} Parameters:{parameters}", DateTime.Now.ToString("u"), parameters);
+		logger.LogInformation("{logInformation}",
+			JsonSerializer.Serialize(new
+			{
+				LogOn = DateTime.Now.ToString("u"),
+				Subject = DreamGameNatsConst.SchedulePublish,
+				Data = new
+				{
+					message.ApiUrl,
+					message.ApiKey,
+					message.AgentName,
+				},
+				Message = "This message publishing handler."
+			}));
 
 		return messageSender.PublishAsync(
 			subject: DreamGameNatsConst.SchedulePublish,
-			data: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parameters)),
+			data: JsonSerializer.SerializeToUtf8Bytes(message),
 			cancellationToken: cancellationToken);
 	}
 }

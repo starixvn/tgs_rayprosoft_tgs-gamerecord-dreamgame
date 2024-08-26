@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.GameRecord.DreamGame.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.GameRecord.DreamGame.Common", "Tgs.GameRecord.DreamGame.Common\Tgs.GameRecord.DreamGame.Common.csproj", "{7B6B3DC5-706F-4564-9562-C38DFCDFBA29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.GameRecord.DreamGame.Repositories", "Tgs.GameRecord.DreamGame.Repositories\Tgs.GameRecord.DreamGame.Repositories.csproj", "{F8D0AF51-5607-486E-AFB1-F5F1F68F3668}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{7B6B3DC5-706F-4564-9562-C38DFCDFBA29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B6B3DC5-706F-4564-9562-C38DFCDFBA29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B6B3DC5-706F-4564-9562-C38DFCDFBA29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8D0AF51-5607-486E-AFB1-F5F1F68F3668}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8D0AF51-5607-486E-AFB1-F5F1F68F3668}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8D0AF51-5607-486E-AFB1-F5F1F68F3668}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8D0AF51-5607-486E-AFB1-F5F1F68F3668}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

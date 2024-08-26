@@ -5,13 +5,6 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<UserSecretsId>cbc33c60-f5dd-435f-b532-a752a7eb473c</UserSecretsId>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-		<NoWarn>$(NoWarn);1591;0063</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -33,6 +26,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Tgs.GameRecord.DreamGame.Common\Tgs.GameRecord.DreamGame.Common.csproj" />
 		<ProjectReference Include="..\Tgs.GameRecord.DreamGame.Core\Tgs.GameRecord.DreamGame.Core.csproj" />
+		<ProjectReference Include="..\Tgs.GameRecord.DreamGame.Repositories\Tgs.GameRecord.DreamGame.Repositories.csproj" />
 	</ItemGroup>
 
 </Project>
