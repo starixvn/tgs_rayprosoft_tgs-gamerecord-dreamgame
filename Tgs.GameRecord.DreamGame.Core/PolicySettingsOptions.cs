@@ -1,4 +1,4 @@
-namespace Tgs.GameRecord.DreamGame.Core;
+﻿namespace Tgs.GameRecord.DreamGame.Core;
 
 public record PolicySettingsOptions
 {
